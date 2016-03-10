@@ -4,7 +4,14 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 
+import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -55,20 +62,75 @@ public class Storage {
         editor.putStringSet(PROPERTY_DECKS, decks);
         editor.commit();
 
-        ContextWrapper cw = new ContextWrapper(mContext);
-        File directory = new File(cw.getFilesDir(), "Decks");
-        directory.mkdirs();
-        // Create imageDir
-        File mypath=new File(directory, deckName);
-        mypath.mkdirs();
-
-        File baseFile = new File(mypath, deckName + ".json");
-        try {
-            baseFile.createNewFile();
-        } catch (IOException e) {
+        if(!writeDeckToFile(new Deck(deckName))){
             return ERROR_WRITE_FAILED;
         }
         return SUCCESS;
     }
+
+    //File I/O methods
+
+    protected boolean writeDeckToFile(Deck d){
+        ContextWrapper cw = new ContextWrapper(mContext);
+        File directory = new File(cw.getFilesDir(), "Decks");
+        directory.mkdirs();
+        // Create directory for deck
+        File mypath=new File(directory, d.getName());
+        mypath.mkdirs();
+
+        File baseFile = new File(mypath, d.getName() + ".json");
+        try {
+            if(!baseFile.createNewFile() || baseFile.isFile()){
+                return false;
+            }
+            //TODO: ensure file is empty
+            FileWriter fw = new FileWriter(baseFile);
+            fw.write(d.getJson().toString());
+            fw.flush();
+            fw.close();
+
+
+
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /***
+     *
+     * @param deckName The name of the deck to be accessed
+     * @return a Deck object with the contents of the deck, or null if it doesn't exist or if there
+     * is an error
+     */
+    protected Deck readDeckFromFile(String deckName){
+        ContextWrapper cw = new ContextWrapper(mContext);
+        File directory = new File(cw.getFilesDir(), "Decks");
+        if(!directory.isDirectory()){
+            return null;
+        }
+        File mypath=new File(directory, deckName);
+        if(!mypath.isDirectory()){
+            return null;
+        }
+        File deckFile = new File(mypath, deckName + ".json");
+        if(!deckFile.isFile()){
+            return null;
+        }
+
+        try {
+            JSONParser jparse = new JSONParser();
+            JSONObject jobj = (JSONObject) jparse.parse(new FileReader(deckFile));
+            return new Deck(jobj);
+        } catch (FileNotFoundException e) {
+            return null; //Should never get here
+        } catch (ParseException e) {
+            return null;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+
 
 }

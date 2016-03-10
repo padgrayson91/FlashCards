@@ -10,17 +10,23 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
- * A placeholder fragment containing a simple view.
+ * A fragment containing the list of available decks
  */
+
+//TODO: Search decks
 public class MainActivityFragment extends Fragment {
 
     private ArrayList<Deck> mDecks;
     private TextView mEmptyText;
     private ListView mDeckList;
+    private Storage mStorage;
+    private DeckListAdapter mDeckAdapter;
 
     public MainActivityFragment() {
         mDecks = new ArrayList<Deck>();
@@ -34,7 +40,11 @@ public class MainActivityFragment extends Fragment {
 
         mEmptyText = (TextView) root.findViewById(R.id.view_empty_text);
         mDeckList = (ListView) root.findViewById(R.id.view_decks_list);
-        //TODO: build deck list from storage
+
+        mStorage = new Storage(getContext());
+        getDecksFromStorage();
+        mDeckAdapter = new DeckListAdapter();
+        mDeckList.setAdapter(mDeckAdapter);
 
         if(mDecks.size() != 0){
             mEmptyText.setVisibility(View.GONE);
@@ -42,6 +52,21 @@ public class MainActivityFragment extends Fragment {
             mDeckList.setVisibility(View.GONE);
         }
         return root;
+    }
+
+    private void getDecksFromStorage(){
+        Set<String> temp = mStorage.getDecks();
+        for(String s: temp){
+            if(!mDecks.contains(s)){
+                Deck d = mStorage.readDeckFromFile(s);
+                if(d == null){
+                    Toast.makeText(getContext(), "Oops, something went wrong!", Toast.LENGTH_LONG).show();
+                    break;
+                } else {
+                    mDecks.add(d);
+                }
+            }
+        }
     }
 
     class DeckListAdapter extends BaseAdapter{

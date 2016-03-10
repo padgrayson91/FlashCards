@@ -68,4 +68,19 @@ public class Deck {
     public int getSize(){
         return cards.size();
     }
+
+    protected JSONObject getJson(){
+        return mJson;
+    }
+
+    @Override
+    public boolean equals(Object toCompare){
+        if(toCompare instanceof Deck){
+            return ((Deck) toCompare).name.equals(this.name);
+        } else if(toCompare instanceof String){
+            return toCompare.equals(this.name);
+        } else {
+            return false;
+        }
+    }
 }
