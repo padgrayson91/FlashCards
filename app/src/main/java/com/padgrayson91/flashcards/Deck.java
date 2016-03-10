@@ -16,7 +16,7 @@ import static com.padgrayson91.flashcards.Constants.KEY_NAME;
 /**
  * Created by patrickgrayson on 3/10/16.
  */
-public class Deck {
+public class Deck implements Comparable {
     private static final String TAG = "FlashCards";
 
     private JSONObject mJson;
@@ -66,7 +66,11 @@ public class Deck {
     }
 
     public int getSize(){
-        return cards.size();
+        if(cards != null) {
+            return cards.size();
+        } else {
+            return 0;
+        }
     }
 
     protected JSONObject getJson(){
@@ -82,5 +86,14 @@ public class Deck {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public int compareTo(Object other){
+        if(other instanceof Deck){
+            return this.getName().compareTo(((Deck) other).getName());
+        }
+        else return 0;
+
     }
 }

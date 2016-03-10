@@ -8,6 +8,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="10"
+        android:textSize="14pt"
         android:text="Deck Name"/>
     <TextView
         android:id="@+id/view_deck_size"

@@ -3,11 +3,13 @@ package com.padgrayson91.flashcards;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
+import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -24,6 +26,8 @@ import static com.padgrayson91.flashcards.Constants.SUCCESS;
  * Created by patrickgrayson on 3/10/16.
  */
 public class Storage {
+    private static final String TAG = "FlashCards";
+
     private Context mContext;
     private SharedPreferences mPrefs;
 
@@ -52,19 +56,30 @@ public class Storage {
      *
      */
     protected int storeDeck(String deckName){
-        Set<String> decks = getDecks();
+        Log.d(TAG, "Storing deck " + deckName);
+        //need to make a copy or sharedprefs won't hang on to changes...
+        Set<String> temp = getDecks();
+        Set<String> decks = new HashSet<>();
+        for(String s: temp){
+            decks.add(s);
+        }
         if(decks.contains(deckName)){
             return ERROR_DUPLICATE_NAME;
         } else {
+            Log.d(TAG, "Added to set");
             decks.add(deckName);
+            Log.d(TAG, "Decks: " + decks.toString());
         }
-        SharedPreferences.Editor editor = mPrefs.edit();
-        editor.putStringSet(PROPERTY_DECKS, decks);
-        editor.commit();
 
         if(!writeDeckToFile(new Deck(deckName))){
             return ERROR_WRITE_FAILED;
         }
+
+        //Only commit if we know the write worked
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putStringSet(PROPERTY_DECKS, decks);
+        editor.commit();
+        Log.d(TAG, "committed");
         return SUCCESS;
     }
 
@@ -80,14 +95,14 @@ public class Storage {
 
         File baseFile = new File(mypath, d.getName() + ".json");
         try {
-            if(!baseFile.createNewFile() || baseFile.isFile()){
+            if(!(baseFile.createNewFile() || baseFile.isFile())){
                 return false;
             }
-            //TODO: ensure file is empty
             FileWriter fw = new FileWriter(baseFile);
-            fw.write(d.getJson().toString());
-            fw.flush();
-            fw.close();
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(d.getJson().toString());
+            bw.flush();
+            bw.close();
 
 
 
@@ -119,14 +134,22 @@ public class Storage {
         }
 
         try {
-            JSONParser jparse = new JSONParser();
-            JSONObject jobj = (JSONObject) jparse.parse(new FileReader(deckFile));
+            JSONObject jobj;
+            FileReader fr = new FileReader(deckFile);
+            BufferedReader br = new BufferedReader(fr);
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while((line = br.readLine()) != null){
+                sb.append(line);
+            }
+            br.close();
+            jobj = new JSONObject(sb.toString());
             return new Deck(jobj);
         } catch (FileNotFoundException e) {
             return null; //Should never get here
-        } catch (ParseException e) {
-            return null;
         } catch (IOException e) {
+            return null;
+        } catch (JSONException e) {
             return null;
         }
     }

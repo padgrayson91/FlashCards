@@ -9,6 +9,7 @@ public class Constants {
     public static final int SUCCESS = 0;
     public static final int ERROR_DUPLICATE_NAME = 1;
     public static final int ERROR_WRITE_FAILED = 2;
+    public static final int ERROR_EMPTY_NAME = 3;
 
     //Flashcard JSON keys
     public static final String KEY_ID = "card_id";

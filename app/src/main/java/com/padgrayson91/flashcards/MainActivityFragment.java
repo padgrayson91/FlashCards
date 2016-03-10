@@ -3,6 +3,7 @@ package com.padgrayson91.flashcards;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -21,6 +23,7 @@ import java.util.Set;
 
 //TODO: Search decks
 public class MainActivityFragment extends Fragment {
+    private static final String TAG = "FlashCards";
 
     private ArrayList<Deck> mDecks;
     private TextView mEmptyText;
@@ -54,11 +57,20 @@ public class MainActivityFragment extends Fragment {
         return root;
     }
 
+    public void updateDecks(){
+        mDecks = new ArrayList<Deck>();
+        getDecksFromStorage();
+        mDeckAdapter.notifyDataSetChanged();
+    }
+
     private void getDecksFromStorage(){
         Set<String> temp = mStorage.getDecks();
+        Log.d(TAG, "Decks " + temp.toString());
         for(String s: temp){
+            Log.d(TAG, "Looking for deck " + s);
             if(!mDecks.contains(s)){
                 Deck d = mStorage.readDeckFromFile(s);
+                Log.d(TAG, "Deck generated! Size: " + d.getSize());
                 if(d == null){
                     Toast.makeText(getContext(), "Oops, something went wrong!", Toast.LENGTH_LONG).show();
                     break;
@@ -67,6 +79,7 @@ public class MainActivityFragment extends Fragment {
                 }
             }
         }
+        Collections.sort(mDecks);
     }
 
     class DeckListAdapter extends BaseAdapter{
@@ -88,12 +101,13 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            Log.d(TAG, "Getting view for " + mDecks.get(position).getName());
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             LinearLayout listItem = (LinearLayout) inflater.inflate(R.layout.list_item_deck, parent, false);
             TextView deckNameView = (TextView) listItem.findViewById(R.id.view_deck_name);
             TextView deckSizeView = (TextView) listItem.findViewById(R.id.view_deck_size);
             deckNameView.setText(mDecks.get(position).getName());
-            deckSizeView.setText(getResources().getQuantityString(R.plurals.card_count, mDecks.get(position).getSize()));
+            deckSizeView.setText(getResources().getQuantityString(R.plurals.card_count, mDecks.get(position).getSize(), mDecks.get(position).getSize()));
 
             return listItem;
 
