@@ -12,8 +12,10 @@
     <TextView
         android:id="@+id/view_empty_text"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="You have no decks yet!  Click the + icon to get started!" />
+        android:layout_height="match_parent"
+        android:text="You have no decks yet!  Click the + icon to get started!"
+        android:gravity="center"
+        android:textSize="16pt"/>
 
     <ListView
         android:id="@+id/view_decks_list"
