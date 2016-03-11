@@ -1,6 +1,8 @@
 package com.padgrayson91.flashcards;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -73,6 +75,8 @@ public class MainActivityFragment extends Fragment {
     }
 
     public void updateDecks(){
+        mDecks = new ArrayList<Deck>();
+        getDecksFromStorage();
         if(mDecks.size() != 0){
             mEmptyText.setVisibility(View.GONE);
             mDeckList.setVisibility(View.VISIBLE);
@@ -80,8 +84,6 @@ public class MainActivityFragment extends Fragment {
             mDeckList.setVisibility(View.GONE);
             mEmptyText.setVisibility(View.VISIBLE);
         }
-        mDecks = new ArrayList<Deck>();
-        getDecksFromStorage();
         mDeckAdapter.notifyDataSetChanged();
     }
 
@@ -104,26 +106,36 @@ public class MainActivityFragment extends Fragment {
         Collections.sort(mDecks);
     }
 
+    private void startBuilder(Deck d){
+        Intent deckBuilderIntent = new Intent(getContext(), DeckBuilderActivity.class);
+        deckBuilderIntent.setAction(ACTION_BUILD_DECK);
+        Bundle extras = new Bundle();
+        extras.putString(EXTRA_DECK_NAME, d.getName());
+        deckBuilderIntent.putExtras(extras);
+        startActivityForResult(deckBuilderIntent, REQUEST_CODE_BUILD_DECK);
+    }
+
     private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Deck d = mDecks.get(position);
+            final Deck d = mDecks.get(position);
             if(d.getSize() > 0){
-                //TODO: launch card builder activity or start play mode
-                Intent deckBuilderIntent = new Intent(getContext(), DeckBuilderActivity.class);
-                deckBuilderIntent.setAction(ACTION_BUILD_DECK);
-                Bundle extras = new Bundle();
-                extras.putString(EXTRA_DECK_NAME, d.getName());
-                deckBuilderIntent.putExtras(extras);
-                startActivityForResult(deckBuilderIntent, REQUEST_CODE_BUILD_DECK);
+                new AlertDialog.Builder(getActivity()).setMessage(getResources().getString(R.string.dialog_play_or_edit))
+                        .setPositiveButton(getResources().getString(R.string.dialog_button_play), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ((MainActivity) getActivity()).onDeckSelected(d);
+                            }
+                        })
+                        .setNegativeButton(getResources().getString(R.string.dialog_button_edit), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startBuilder(d);
+                            }
+                        }).setCancelable(true).show();
 
             } else {
-                Intent deckBuilderIntent = new Intent(getContext(), DeckBuilderActivity.class);
-                deckBuilderIntent.setAction(ACTION_BUILD_DECK);
-                Bundle extras = new Bundle();
-                extras.putString(EXTRA_DECK_NAME, d.getName());
-                deckBuilderIntent.putExtras(extras);
-                startActivityForResult(deckBuilderIntent, REQUEST_CODE_BUILD_DECK);
+                startBuilder(d);
             }
         }
     };

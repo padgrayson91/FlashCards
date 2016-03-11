@@ -7,6 +7,9 @@
     <string name="prompt_question">Question:</string>
     <string name="prompt_answer">Answer:</string>
     <string name="prompt_options">Incorrect Answer Choices:</string>
+    <string name="dialog_play_or_edit">What do you want to do?</string>
+    <string name="dialog_button_play">Play</string>
+    <string name="dialog_button_edit">Add cards</string>
     <string name="score_text">Score: %d</string>
     <plurals name="card_count">
         <item quantity="one">%d Card</item>

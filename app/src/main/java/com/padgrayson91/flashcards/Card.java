@@ -35,6 +35,7 @@ public class Card implements Comparable{
         this.mJson = new JSONObject();
         this.incorrectCount = 0;
         this.correctCount = 0;
+        this.options = new ArrayList<String>();
     }
 
 
@@ -46,6 +47,7 @@ public class Card implements Comparable{
     public Card(JSONObject card, String id) {
         mJson = card;
         this.id = id;
+        this.options = new ArrayList<String>();
 
         //Check for all the keys to initialize the card
         try {
@@ -63,6 +65,9 @@ public class Card implements Comparable{
             }
             if (mJson.has(KEY_OPTIONS)) {
                 JSONArray temp = mJson.getJSONArray(KEY_OPTIONS);
+                for(int i = 0; i < temp.length(); i++){
+                    options.add(temp.getString(i));
+                }
             }
         } catch (JSONException ex) {
             //Should never get here
@@ -127,7 +132,10 @@ public class Card implements Comparable{
     }
 
     public void setOptions(ArrayList<String> options) {
-        this.options = options;
+        this.options = new ArrayList<String>();
+        for(String s: options){
+            this.options.add(s);
+        }
     }
 
     public String getQuestion() {

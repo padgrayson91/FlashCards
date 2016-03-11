@@ -1,13 +1,13 @@
 package com.padgrayson91.flashcards;
 
 import android.R.drawable;
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,7 +21,7 @@ import static com.padgrayson91.flashcards.Constants.SUCCESS;
 /**
  * Created by patrickgrayson on 3/10/16.
  */
-public class DeckBuilderActivity extends Activity {
+public class DeckBuilderActivity extends AppCompatActivity {
 
     private Deck mDeck;
     private Storage mStorage;
@@ -44,6 +44,8 @@ public class DeckBuilderActivity extends Activity {
         if(savedInstanceState != null){
             currentMode = savedInstanceState.getInt(KEY_MODE);
             deckName = savedInstanceState.getString(KEY_DECK_NAME);
+        } else {
+            currentMode = MODE_LIST;
         }
         setContentView(R.layout.activity_deck_builder);
         Intent intent = getIntent();
@@ -107,7 +109,7 @@ public class DeckBuilderActivity extends Activity {
                 mFloatButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        CardBuilderFragment builderFragment = (CardBuilderFragment) getFragmentManager().findFragmentByTag(TAG_BUILDER);
+                        CardBuilderFragment builderFragment = (CardBuilderFragment) getSupportFragmentManager().findFragmentByTag(TAG_BUILDER);
                         int result = builderFragment.validateAndSave(mDeck);
                         switch (result){
                             case SUCCESS:
@@ -145,7 +147,7 @@ public class DeckBuilderActivity extends Activity {
                 break;
         }
 
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.fragment_placeholder, fragment, TAG)
                 .commit();

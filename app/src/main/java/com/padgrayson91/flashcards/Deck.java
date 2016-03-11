@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import static com.padgrayson91.flashcards.Constants.ERROR_NO_ID;
 import static com.padgrayson91.flashcards.Constants.KEY_CARDS;
@@ -24,10 +25,12 @@ public class Deck implements Comparable {
     private JSONObject mJson;
     private HashMap<String, Card> cards;
     private String name;
+    private Iterator<String> mCardIterator;
 
     public Deck(String name){
         mJson = new JSONObject();
         cards = new HashMap<String, Card>();
+        mCardIterator = cards.keySet().iterator();
         this.name = name;
         try {
             mJson.put(KEY_NAME, name);
@@ -60,6 +63,7 @@ public class Deck implements Comparable {
         } catch (JSONException ex) {
             //Should never get here
         }
+        mCardIterator = cards.keySet().iterator();
 
     }
 
@@ -87,6 +91,15 @@ public class Deck implements Comparable {
             cards.put(c.id, c);
 
             return SUCCESS;
+        }
+    }
+
+    public Card getNextCard(){
+        if(mCardIterator.hasNext()) {
+            return cards.get(mCardIterator.next());
+        }
+        else {
+            return null;
         }
     }
 

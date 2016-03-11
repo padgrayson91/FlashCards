@@ -1,8 +1,8 @@
 package com.padgrayson91.flashcards;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +10,11 @@ import android.widget.EditText;
 
 import java.util.ArrayList;
 
-import static com.padgrayson91.flashcards.Constants.*;
+import static com.padgrayson91.flashcards.Constants.ERROR_EMPTY_ANSWER;
+import static com.padgrayson91.flashcards.Constants.ERROR_EMPTY_QUESTION;
+import static com.padgrayson91.flashcards.Constants.ERROR_NO_OPTIONS;
+import static com.padgrayson91.flashcards.Constants.ERROR_WRITE_FAILED;
+import static com.padgrayson91.flashcards.Constants.SUCCESS;
 
 /**
  * Created by patrickgrayson on 3/10/16.
@@ -26,6 +30,10 @@ public class CardBuilderFragment extends Fragment {
     private String question;
     private String answer;
     private ArrayList<String>  options;
+
+    public CardBuilderFragment (){
+        options = new ArrayList<String>();
+    }
 
     @Nullable
     @Override
@@ -60,7 +68,6 @@ public class CardBuilderFragment extends Fragment {
     public int validate() {
         question = mQuestionEdit.getText().toString();
         answer = mAnswerEdit.getText().toString();
-        options = new ArrayList<String>();
         String option1 = mOption1Edit.getText().toString();
         String option2 = mOption2Edit.getText().toString();
         String option3 = mOption3Edit.getText().toString();
