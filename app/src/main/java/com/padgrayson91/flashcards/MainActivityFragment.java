@@ -73,6 +73,13 @@ public class MainActivityFragment extends Fragment {
     }
 
     public void updateDecks(){
+        if(mDecks.size() != 0){
+            mEmptyText.setVisibility(View.GONE);
+            mDeckList.setVisibility(View.VISIBLE);
+        } else {
+            mDeckList.setVisibility(View.GONE);
+            mEmptyText.setVisibility(View.VISIBLE);
+        }
         mDecks = new ArrayList<Deck>();
         getDecksFromStorage();
         mDeckAdapter.notifyDataSetChanged();
@@ -103,6 +110,13 @@ public class MainActivityFragment extends Fragment {
             Deck d = mDecks.get(position);
             if(d.getSize() > 0){
                 //TODO: launch card builder activity or start play mode
+                Intent deckBuilderIntent = new Intent(getContext(), DeckBuilderActivity.class);
+                deckBuilderIntent.setAction(ACTION_BUILD_DECK);
+                Bundle extras = new Bundle();
+                extras.putString(EXTRA_DECK_NAME, d.getName());
+                deckBuilderIntent.putExtras(extras);
+                startActivityForResult(deckBuilderIntent, REQUEST_CODE_BUILD_DECK);
+
             } else {
                 Intent deckBuilderIntent = new Intent(getContext(), DeckBuilderActivity.class);
                 deckBuilderIntent.setAction(ACTION_BUILD_DECK);

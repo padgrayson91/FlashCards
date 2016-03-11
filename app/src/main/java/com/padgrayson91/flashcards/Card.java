@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import static com.padgrayson91.flashcards.Constants.KEY_ANSWER;
+import static com.padgrayson91.flashcards.Constants.KEY_ID;
 import static com.padgrayson91.flashcards.Constants.KEY_OPTIONS;
 import static com.padgrayson91.flashcards.Constants.KEY_QUESTION;
 import static com.padgrayson91.flashcards.Constants.KEY_TIMES_CORRECT;
@@ -16,7 +17,7 @@ import static com.padgrayson91.flashcards.Constants.KEY_TIMES_INCORRECT;
  * Utility to create and edit individual flash cards
  * Created by patrickgrayson on 3/10/16.
  */
-public class Card {
+public class Card implements Comparable{
     private JSONObject mJson;
     private String question;
     private String answer;
@@ -25,13 +26,26 @@ public class Card {
     private ArrayList<String> options;
     public String id;
 
+    /***
+     * Constructor to be used when building a card for the first time
+     * @param id
+     */
     public Card(String id){
         this.id = id;
+        this.mJson = new JSONObject();
+        this.incorrectCount = 0;
+        this.correctCount = 0;
     }
 
 
+    /***
+     * Constructor to be used when retrieving a card from JSON
+     * @param card
+     * @param id should be the id already assigned to the card
+     */
     public Card(JSONObject card, String id) {
         mJson = card;
+        this.id = id;
 
         //Check for all the keys to initialize the card
         try {
@@ -61,12 +75,19 @@ public class Card {
 
 
     public JSONObject toJSON(){
-        return mJson;
-    }
+        try {
+            mJson.put(KEY_ID, id);
+            mJson.put(KEY_QUESTION, question);
+            mJson.put(KEY_ANSWER, answer);
+            mJson.put(KEY_TIMES_CORRECT, correctCount);
+            mJson.put(KEY_TIMES_INCORRECT, incorrectCount);
+            JSONArray options = new JSONArray(this.options);
+            mJson.put(KEY_OPTIONS, options);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-    @Override
-    public String toString(){
-        return mJson.toString();
+        return mJson;
     }
 
     public String getAnswer() {
@@ -117,4 +138,28 @@ public class Card {
         this.question = question;
     }
 
+    //TODO: make a more interesting scoring algorithm
+    public int getScore(){
+        return correctCount - incorrectCount;
+    }
+
+    @Override
+    public String toString(){
+        return mJson.toString();
+    }
+
+    @Override
+    public int compareTo(Object other){
+        if(other instanceof Card){
+            if(this.getScore() == ((Card) other).getScore()){
+                return this.id.compareTo(((Card) other).id);
+            }
+            else {
+                return this.getScore() - ((Card) other).getScore();
+            }
+        }
+        else {
+            return 0;
+        }
+    }
 }

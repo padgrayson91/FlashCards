@@ -8,10 +8,12 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
+import static com.padgrayson91.flashcards.Constants.ERROR_NO_ID;
 import static com.padgrayson91.flashcards.Constants.KEY_CARDS;
 import static com.padgrayson91.flashcards.Constants.KEY_CARD_CONTENTS;
 import static com.padgrayson91.flashcards.Constants.KEY_ID;
 import static com.padgrayson91.flashcards.Constants.KEY_NAME;
+import static com.padgrayson91.flashcards.Constants.SUCCESS;
 
 /**
  * Created by patrickgrayson on 3/10/16.
@@ -73,7 +75,36 @@ public class Deck implements Comparable {
         }
     }
 
+    public HashMap<String, Card> getCards(){
+        return cards;
+    }
+
+    public int addCard(Card c){
+        if(c.id == null || c.id.equals("")){
+            return ERROR_NO_ID;
+        } else {
+            //TODO: should check if card already exists with that ID
+            cards.put(c.id, c);
+
+            return SUCCESS;
+        }
+    }
+
     protected JSONObject getJson(){
+        JSONArray cards = new JSONArray();
+        try {
+            for (String s : this.cards.keySet()) {
+                JSONObject outerCard = new JSONObject();
+                outerCard.put(KEY_ID, s);
+                JSONObject cardContents = this.cards.get(s).toJSON();
+                outerCard.put(KEY_CARD_CONTENTS, cardContents);
+                cards.put(outerCard);
+            }
+            mJson.put(KEY_NAME, name);
+            mJson.put(KEY_CARDS, cards);
+        } catch (JSONException ex){
+            //Should never get here
+        }
         return mJson;
     }
 

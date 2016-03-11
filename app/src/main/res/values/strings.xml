@@ -7,6 +7,7 @@
     <string name="prompt_question">Question:</string>
     <string name="prompt_answer">Answer:</string>
     <string name="prompt_options">Incorrect Answer Choices:</string>
+    <string name="score_text">Score: %d</string>
     <plurals name="card_count">
         <item quantity="one">%d Card</item>
         <item quantity="other">%d Cards</item>

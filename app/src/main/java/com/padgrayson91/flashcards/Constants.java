@@ -10,6 +10,10 @@ public class Constants {
     public static final int ERROR_DUPLICATE_NAME = 1;
     public static final int ERROR_WRITE_FAILED = 2;
     public static final int ERROR_EMPTY_NAME = 3;
+    public static final int ERROR_EMPTY_QUESTION = 4;
+    public static final int ERROR_EMPTY_ANSWER = 5;
+    public static final int ERROR_NO_OPTIONS = 6;
+    public static final int ERROR_NO_ID = 7;
 
     //Flashcard JSON keys
     public static final String KEY_ID = "card_id";

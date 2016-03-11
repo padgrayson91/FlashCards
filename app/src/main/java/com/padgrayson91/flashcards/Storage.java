@@ -114,6 +114,7 @@ public class Storage {
             }
             FileWriter fw = new FileWriter(baseFile);
             BufferedWriter bw = new BufferedWriter(fw);
+            Log.d(TAG, "Writing deck to file: " + d.getJson().toString());
             bw.write(d.getJson().toString());
             bw.flush();
             bw.close();
