@@ -94,7 +94,17 @@ public class Deck implements Comparable {
         }
     }
 
+    public int updateCard(Card c){
+        if(c.id == null || !cards.keySet().contains(c.id)){
+            return ERROR_NO_ID;
+        } else {
+            cards.put(c.id, c);
+            return SUCCESS;
+        }
+    }
+
     public Card getNextCard(){
+        //TODO: More interesting method of getting cards
         if(mCardIterator.hasNext()) {
             return cards.get(mCardIterator.next());
         }

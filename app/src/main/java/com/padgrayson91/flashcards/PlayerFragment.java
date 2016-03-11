@@ -67,7 +67,7 @@ public class PlayerFragment extends Fragment {
                         public void run() {
                             boolean hasNext = loadNextCard();
                             if(!hasNext){
-                                ((MainActivity) getActivity()).onPlayFinished();
+                                playFinished();
                             }
                         }
                     }, 5000);
@@ -76,6 +76,14 @@ public class PlayerFragment extends Fragment {
         }
         Log.d(TAG, "Player fragment: view created!");
         return root;
+    }
+
+    public void playFinished(){
+        //Update the deck so scores persist
+        Storage storage = new Storage(getActivity());
+        storage.writeDeckToFile(mDeck);
+
+        ((MainActivity) getActivity()).onPlayFinished();
     }
 
     public void setDeck(Deck d){
