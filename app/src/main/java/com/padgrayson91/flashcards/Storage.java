@@ -46,7 +46,7 @@ public class Storage {
     }
 
 
-    //Store methods
+    //Store and remove methods
 
     /***
      * In addition to adding the name to list of decks, this method will create the flashcard data
@@ -81,6 +81,20 @@ public class Storage {
         editor.commit();
         Log.d(TAG, "committed");
         return SUCCESS;
+    }
+
+    protected void removeDeck(String deckName){
+        //need to make a copy or sharedprefs won't hang on to changes...
+        Set<String> temp = getDecks();
+        Set<String> decks = new HashSet<>();
+        for(String s: temp){
+            decks.add(s);
+        }
+        decks.remove(deckName);
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putStringSet(PROPERTY_DECKS, decks);
+        editor.commit();
+        deleteDeck(deckName);
     }
 
     //File I/O methods
@@ -151,6 +165,20 @@ public class Storage {
             return null;
         } catch (JSONException e) {
             return null;
+        }
+    }
+
+    //Private because we should never be deleting a deck without removing it from sharedprefs
+    private void deleteDeck(String deckName){
+        ContextWrapper cw = new ContextWrapper(mContext);
+        File dir = new File(cw.getFilesDir() + "Decks/" + deckName);
+        if (dir.isDirectory())
+        {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++)
+            {
+                new File(dir, children[i]).delete();
+            }
         }
     }
 

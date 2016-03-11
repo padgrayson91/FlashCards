@@ -89,6 +89,11 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if(id == R.id.action_delete){
+            MainActivityFragment maf = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
+            maf.deleteSelectedDecks();
+            maf.updateDecks();
+            Toast.makeText(MainActivity.this, "Deck deleted!", Toast.LENGTH_SHORT).show();
         }
 
         return super.onOptionsItemSelected(item);

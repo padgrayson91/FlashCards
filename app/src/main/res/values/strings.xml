@@ -4,6 +4,9 @@
     <string name="alert_name_deck">Enter Deck Name:</string>
     <string name="alert_name_accept">OK</string>
     <string name="alert_name_cancel">Cancel</string>
+    <string name="prompt_question">Question:</string>
+    <string name="prompt_answer">Answer:</string>
+    <string name="prompt_options">Incorrect Answer Choices:</string>
     <plurals name="card_count">
         <item quantity="one">%d Card</item>
         <item quantity="other">%d Cards</item>

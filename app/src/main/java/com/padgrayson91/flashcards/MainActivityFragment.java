@@ -1,13 +1,16 @@
 package com.padgrayson91.flashcards;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -16,6 +19,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
+
+import static com.padgrayson91.flashcards.Constants.*;
 
 /**
  * A fragment containing the list of available decks
@@ -48,6 +53,7 @@ public class MainActivityFragment extends Fragment {
         getDecksFromStorage();
         mDeckAdapter = new DeckListAdapter();
         mDeckList.setAdapter(mDeckAdapter);
+        mDeckList.setOnItemClickListener(mItemClickListener);
 
         if(mDecks.size() != 0){
             mEmptyText.setVisibility(View.GONE);
@@ -55,6 +61,15 @@ public class MainActivityFragment extends Fragment {
             mDeckList.setVisibility(View.GONE);
         }
         return root;
+    }
+
+    public void deleteSelectedDecks(){
+        for(int i = 0; i < mDecks.size(); i++){
+            boolean selected = ((CheckBox) mDeckList.getChildAt(i).findViewById(R.id.selection_check)).isChecked();
+            if(selected){
+                mStorage.removeDeck(mDecks.get(i).getName());
+            }
+        }
     }
 
     public void updateDecks(){
@@ -81,6 +96,23 @@ public class MainActivityFragment extends Fragment {
         }
         Collections.sort(mDecks);
     }
+
+    private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Deck d = mDecks.get(position);
+            if(d.getSize() > 0){
+                //TODO: launch card builder activity or start play mode
+            } else {
+                Intent deckBuilderIntent = new Intent(getContext(), DeckBuilderActivity.class);
+                deckBuilderIntent.setAction(ACTION_BUILD_DECK);
+                Bundle extras = new Bundle();
+                extras.putString(EXTRA_DECK_NAME, d.getName());
+                deckBuilderIntent.putExtras(extras);
+                startActivityForResult(deckBuilderIntent, REQUEST_CODE_BUILD_DECK);
+            }
+        }
+    };
 
     class DeckListAdapter extends BaseAdapter{
 

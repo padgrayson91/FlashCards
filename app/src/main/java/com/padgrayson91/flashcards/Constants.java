@@ -30,4 +30,13 @@ public class Constants {
     public static final int CARD_TYPE_FREE_RESPONSE = 102;
     public static final int CARD_TYPE_VARIABLE = 103;
 
+    //Intent actions
+    public static final String ACTION_BUILD_DECK = "com.padgrayson91.flashcards.action.ACTION_BUILD_DECK";
+
+    //Intent extras
+    public static final String EXTRA_DECK_NAME = "deck_name";
+
+    //Request codes
+    public static final int REQUEST_CODE_BUILD_DECK = 1001;
+
 }
