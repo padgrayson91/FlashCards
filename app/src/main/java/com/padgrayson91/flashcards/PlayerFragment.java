@@ -70,7 +70,7 @@ public class PlayerFragment extends Fragment {
                                 playFinished();
                             }
                         }
-                    }, 5000);
+                    }, 3000);
                 }
             });
         }
@@ -152,7 +152,14 @@ public class PlayerFragment extends Fragment {
             }
         }
         while(i < mAnswerButtons.size()){
-            mAnswerButtons.get(i).setVisibility(View.GONE);
+            if(i == correctPos) {
+                Log.d(TAG, "Inserting correct answer and making button visible");
+                current = mAnswerButtons.get(i);
+                current.setText(answer);
+                current.setVisibility(View.VISIBLE);
+            } else {
+                mAnswerButtons.get(i).setVisibility(View.GONE);
+            }
             i++;
         }
     }

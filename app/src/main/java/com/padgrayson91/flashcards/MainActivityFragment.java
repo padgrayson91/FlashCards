@@ -119,6 +119,7 @@ public class MainActivityFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             final Deck d = mDecks.get(position);
+            //TODO: Make a custom dialog fragment because this looks awful
             if(d.getSize() > 0){
                 new AlertDialog.Builder(getActivity()).setMessage(getResources().getString(R.string.dialog_play_or_edit))
                         .setPositiveButton(getResources().getString(R.string.dialog_button_play), new DialogInterface.OnClickListener() {
@@ -166,6 +167,7 @@ public class MainActivityFragment extends Fragment {
             TextView deckSizeView = (TextView) listItem.findViewById(R.id.view_deck_size);
             deckNameView.setText(mDecks.get(position).getName());
             deckSizeView.setText(getResources().getQuantityString(R.plurals.card_count, mDecks.get(position).getSize(), mDecks.get(position).getSize()));
+            listItem.setBackgroundColor(mDecks.get(position).getColor());
 
             return listItem;
 

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants">
     <CheckBox
         android:id="@+id/selection_check"
         android:layout_width="0dp"
@@ -16,7 +17,9 @@
         android:layout_weight="10"
         android:textSize="14pt"
         android:gravity="center_vertical"
-        android:text="Deck Name"/>
+        android:text="Deck Name"
+        android:ellipsize="end"
+        android:singleLine="true"/>
     <TextView
         android:id="@+id/view_card_score"
         android:padding="8dp"

@@ -17,7 +17,9 @@
         android:layout_weight="10"
         android:textSize="14pt"
         android:gravity="center_vertical"
-        android:text="Deck Name"/>
+        android:text="Deck Name"
+        android:ellipsize="end"
+        android:singleLine="true"/>
     <TextView
         android:id="@+id/view_deck_size"
         android:padding="8dp"

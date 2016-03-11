@@ -52,7 +52,8 @@ public class CardListFragment extends Fragment {
         }
     }
 
-    //TODO: Would be really cool if the layout color changed based on ratio correct:incorrect
+    //TODO: click listener for cards
+
     class CardListAdapter extends BaseAdapter {
 
         @Override
@@ -81,6 +82,7 @@ public class CardListFragment extends Fragment {
             int score = mCards.get(position).getScore();
             String scoreText = String.format(getResources().getString(R.string.score_text), score);
             cardScoreView.setText(scoreText);
+            listItem.setBackgroundColor(mCards.get(position).getColor());
 
             return listItem;
 

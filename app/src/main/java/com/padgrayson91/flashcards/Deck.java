@@ -1,5 +1,6 @@
 package com.padgrayson91.flashcards;
 
+import android.graphics.Color;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -76,6 +77,20 @@ public class Deck implements Comparable {
             return cards.size();
         } else {
             return 0;
+        }
+    }
+
+    public int getColor(){
+        int totalScore = 0;
+        for(String s: cards.keySet()){
+            totalScore += cards.get(s).getScore();
+
+
+        }
+        if(totalScore > 0){
+            return Color.argb(160, 0, Math.min(totalScore * 10, 255), 0);
+        } else {
+            return Color.argb(160, Math.min(Math.abs(totalScore*10), 255), 0, 0);
         }
     }
 

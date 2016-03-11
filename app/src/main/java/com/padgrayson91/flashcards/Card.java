@@ -1,5 +1,7 @@
 package com.padgrayson91.flashcards;
 
+import android.graphics.Color;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -149,6 +151,17 @@ public class Card implements Comparable{
     //TODO: make a more interesting scoring algorithm
     public int getScore(){
         return correctCount - incorrectCount;
+    }
+
+    public int getColor(){
+        int score = getScore();
+        int totalPlays = correctCount + incorrectCount;
+
+        if(score > 0){
+            return Color.argb(Math.min(totalPlays*10, 160), 0, Math.min(score*25, 255), 0);
+        } else {
+            return Color.argb(Math.min(totalPlays*10,160), Math.min(Math.abs(score*25), 255), 0, 0);
+        }
     }
 
     @Override
