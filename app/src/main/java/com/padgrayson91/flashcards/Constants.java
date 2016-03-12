@@ -37,8 +37,9 @@ public class Constants {
     //Intent actions
     public static final String ACTION_BUILD_DECK = "com.padgrayson91.flashcards.action.ACTION_BUILD_DECK";
 
-    //Intent extras
+    //Bundle extras
     public static final String EXTRA_DECK_NAME = "deck_name";
+    public static final String EXTRA_CARD_ID = "card_id";
 
     //Request codes
     public static final int REQUEST_CODE_BUILD_DECK = 1001;

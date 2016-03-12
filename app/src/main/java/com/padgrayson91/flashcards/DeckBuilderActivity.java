@@ -8,6 +8,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -33,10 +35,8 @@ public class DeckBuilderActivity extends AppCompatActivity {
 
     private static final int MODE_LIST = 0;
     private static final int MODE_CREATE = 1;
-    private static final int MODE_VIEW = 2;
     private static final String TAG_BUILDER = "BUILDER";
     private static final String TAG_LIST = "LIST";
-    private static final String TAG_VIEW = "VIEW";
 
 
     @Override
@@ -46,6 +46,26 @@ public class DeckBuilderActivity extends AppCompatActivity {
         } else {
             swapFragment(MODE_LIST);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_deck_builder, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+
+        //TODO: should let user change some settings
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -89,8 +109,6 @@ public class DeckBuilderActivity extends AppCompatActivity {
             case MODE_CREATE:
                 swapFragment(MODE_CREATE);
                 break;
-            case MODE_VIEW:
-                break;
             case MODE_LIST:
                 swapFragment(MODE_LIST);
                 break;
@@ -102,24 +120,6 @@ public class DeckBuilderActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_MODE, currentMode);
-    }
-
-    public void onCardSelected(Card c){
-        swapFragment(MODE_VIEW);
-        FragmentManager fm = getSupportFragmentManager();
-        CardViewerFragment viewerFragment = (CardViewerFragment) fm.findFragmentByTag(TAG_VIEW);
-        if(viewerFragment == null){
-            fm.executePendingTransactions();
-            viewerFragment = (CardViewerFragment) fm.findFragmentByTag(TAG_VIEW);
-
-        }
-        if(viewerFragment == null){
-            //Give up if we're still null
-
-        } else {
-            viewerFragment.setCard(c);
-            viewerFragment.setmDeck(mDeck);
-        }
     }
 
     private void updateButton(int resource){
@@ -165,11 +165,6 @@ public class DeckBuilderActivity extends AppCompatActivity {
 
                     }
                 });
-                break;
-            case MODE_VIEW:
-                fragment = new CardViewerFragment();
-                TAG = TAG_VIEW;
-                mFloatButton.setVisibility(View.GONE);
                 break;
             case MODE_LIST:
                 fragment = new CardListFragment();

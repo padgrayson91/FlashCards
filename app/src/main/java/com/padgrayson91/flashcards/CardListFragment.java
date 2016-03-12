@@ -2,16 +2,22 @@ package com.padgrayson91.flashcards;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,20 +31,66 @@ public class CardListFragment extends Fragment {
     private Deck mDeck;
     private ListView mCardList;
     private CardListAdapter mCardAdapter;
+    private TextView mEmptyText;
+    private Storage mStorage;
 
     public CardListFragment(){
         mCards = new ArrayList<Card>();
+        Bundle args = getArguments();
+        if(args != null && getContext() != null){
+            mStorage = new Storage(getContext());
+            String deckName = args.getString(Constants.EXTRA_DECK_NAME, "");
+            if(!deckName.equals("")){
+                setDeck(mStorage.readDeckFromFile(deckName));
+            }
+        }
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_card_list, container, false);
+        mEmptyText = (TextView) root.findViewById(R.id.view_empty_text);
         mCardList = (ListView) root.findViewById(R.id.card_list);
+        if(mCards.size() > 0){
+            mCardList.setVisibility(View.VISIBLE);
+            mEmptyText.setVisibility(View.GONE);
+        } else{
+            mEmptyText.setVisibility(View.VISIBLE);
+            mCardList.setVisibility(View.GONE);
+        }
         mCardAdapter = new CardListAdapter();
         mCardList.setAdapter(mCardAdapter);
         mCardList.setOnItemClickListener(mItemClickListener);
+        setHasOptionsMenu(true);
         return root;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_fragment_card_list, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.action_delete){
+            deleteSelectedCards();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void deleteSelectedCards(){
+        for(int i = 0; i < mCards.size(); i++){
+            boolean selected = ((CheckBox) mCardList.getChildAt(i).findViewById(R.id.selection_check)).isChecked();
+            if(selected){
+                mDeck.removeCard(mCards.get(i));
+            }
+        }
+        Toast.makeText(getActivity(), "Cards deleted", Toast.LENGTH_SHORT).show();
+        setDeck(mDeck);
     }
 
     public void setDeck(Deck d){
@@ -58,7 +110,12 @@ public class CardListFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Card c = mCards.get(position);
-            ((DeckBuilderActivity) getActivity()).onCardSelected(c);
+            Bundle extras = new Bundle();
+            extras.putString(Constants.EXTRA_CARD_ID, c.id);
+            extras.putString(Constants.EXTRA_DECK_NAME, mDeck.getName());
+            Intent i = new Intent(getActivity(), CardViewerActivity.class);
+            i.putExtras(extras);
+            startActivity(i);
         }
     };
 

@@ -25,6 +25,9 @@
                 <action android:name="com.padgrayson91.flashcards.action.ACTION_BUILD_DECK"/>
             </intent-filter>
         </activity>
+        <activity android:name=".CardViewerActivity"
+            android:label="@string/app_name">
+        </activity>
     </application>
 
 </manifest>

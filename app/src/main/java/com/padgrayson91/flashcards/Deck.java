@@ -109,6 +109,19 @@ public class Deck implements Comparable {
         }
     }
 
+    public Card getCard(String id){
+        return cards.get(id);
+    }
+
+    public int removeCard(Card c){
+        if(c.id == null || c.id.equals("")){
+            return ERROR_NO_ID;
+        } else {
+            cards.remove(c.id);
+            return SUCCESS;
+        }
+    }
+
     public int updateCard(Card c){
         if(c.id == null || !cards.keySet().contains(c.id)){
             return ERROR_NO_ID;
@@ -126,6 +139,10 @@ public class Deck implements Comparable {
         else {
             return null;
         }
+    }
+
+    public void reset(){
+        mCardIterator = cards.keySet().iterator();
     }
 
     protected JSONObject getJson(){
