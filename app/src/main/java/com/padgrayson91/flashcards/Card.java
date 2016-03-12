@@ -155,12 +155,11 @@ public class Card implements Comparable{
 
     public int getColor(){
         int score = getScore();
-        int totalPlays = correctCount + incorrectCount;
 
         if(score > 0){
-            return Color.argb(Math.min(totalPlays*10, 160), 0, Math.min(score*25, 255), 0);
+            return Color.argb(255, 255 - 10*score, 255, 255 - 10*score);
         } else {
-            return Color.argb(Math.min(totalPlays*10,160), Math.min(Math.abs(score*25), 255), 0, 0);
+            return Color.argb(255, 255, 255 + 10*score, 255 + 10*score);
         }
     }
 
@@ -169,6 +168,8 @@ public class Card implements Comparable{
         return mJson.toString();
     }
 
+
+    //TODO: should have comparison modes so that we can sort in other ways
     @Override
     public int compareTo(Object other){
         if(other instanceof Card){

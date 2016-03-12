@@ -87,10 +87,11 @@ public class Deck implements Comparable {
 
 
         }
+        totalScore = totalScore/cards.keySet().size();
         if(totalScore > 0){
-            return Color.argb(160, 0, Math.min(totalScore * 10, 255), 0);
+            return Color.argb(255, 255 - 10*totalScore, 255, 255 - 10*totalScore);
         } else {
-            return Color.argb(160, Math.min(Math.abs(totalScore*10), 255), 0, 0);
+            return Color.argb(255, 255, 255 + 10*totalScore, 255 + 10*totalScore);
         }
     }
 
@@ -174,6 +175,7 @@ public class Deck implements Comparable {
         }
     }
 
+    //TODO: should have comparison modes so that we can sort in other ways
     @Override
     public int compareTo(Object other){
         if(other instanceof Deck){
