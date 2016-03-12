@@ -106,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
         outState.putInt(KEY_MODE, currentMode);
     }
 
-    //TODO: change options menu with fragment
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -121,14 +120,11 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+
+        //TODO: should let user change some settings
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        } else if(id == R.id.action_delete){
-            MainActivityFragment maf = (MainActivityFragment) getSupportFragmentManager().findFragmentByTag(TAG_LIST);
-            maf.deleteSelectedDecks();
-            maf.updateDecks();
-            Toast.makeText(MainActivity.this, "Deck deleted!", Toast.LENGTH_SHORT).show();
         }
 
         return super.onOptionsItemSelected(item);

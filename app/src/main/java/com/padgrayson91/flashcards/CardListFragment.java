@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -36,6 +37,7 @@ public class CardListFragment extends Fragment {
         mCardList = (ListView) root.findViewById(R.id.card_list);
         mCardAdapter = new CardListAdapter();
         mCardList.setAdapter(mCardAdapter);
+        mCardList.setOnItemClickListener(mItemClickListener);
         return root;
     }
 
@@ -52,7 +54,13 @@ public class CardListFragment extends Fragment {
         }
     }
 
-    //TODO: click listener for cards
+    AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Card c = mCards.get(position);
+            ((DeckBuilderActivity) getActivity()).onCardSelected(c);
+        }
+    };
 
     class CardListAdapter extends BaseAdapter {
 

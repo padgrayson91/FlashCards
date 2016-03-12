@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -22,7 +25,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.padgrayson91.flashcards.Constants.*;
+import static com.padgrayson91.flashcards.Constants.ACTION_BUILD_DECK;
+import static com.padgrayson91.flashcards.Constants.EXTRA_DECK_NAME;
+import static com.padgrayson91.flashcards.Constants.REQUEST_CODE_BUILD_DECK;
 
 /**
  * A fragment containing the list of available decks
@@ -62,16 +67,38 @@ public class MainActivityFragment extends Fragment {
         } else {
             mDeckList.setVisibility(View.GONE);
         }
+        setHasOptionsMenu(true);
         return root;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_fragment_main, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.action_delete){
+            deleteSelectedDecks();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
     public void deleteSelectedDecks(){
+        Log.d(TAG, "Deleting decks");
         for(int i = 0; i < mDecks.size(); i++){
             boolean selected = ((CheckBox) mDeckList.getChildAt(i).findViewById(R.id.selection_check)).isChecked();
             if(selected){
                 mStorage.removeDeck(mDecks.get(i).getName());
             }
         }
+        Toast.makeText(getActivity(), "Decks deleted", Toast.LENGTH_SHORT).show();
+        updateDecks();
     }
 
     public void updateDecks(){

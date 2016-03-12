@@ -65,6 +65,7 @@ public class CardBuilderFragment extends Fragment {
         return result;
     }
 
+    //TODO: should check if questions or answers are too long
     public int validate() {
         question = mQuestionEdit.getText().toString();
         answer = mAnswerEdit.getText().toString();
