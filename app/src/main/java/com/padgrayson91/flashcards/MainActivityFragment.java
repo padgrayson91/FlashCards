@@ -286,11 +286,19 @@ public class MainActivityFragment extends Fragment {
         }
     };
 
+    private View.OnLongClickListener mLongClickListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            return false;
+        }
+    };
+
     private AdapterView.OnItemLongClickListener mItemLongClickListener = new AdapterView.OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            CheckBox selectionCheck = (CheckBox) view.findViewById(R.id.selection_check);
-            selectionCheck.setChecked(true);
+            CheckBox selectionCheck = (CheckBox) parent.findViewById(R.id.selection_check);
+            if(selectionCheck != null)
+                selectionCheck.setChecked(true);
 
             showChecks(true);
             return true;
@@ -338,6 +346,7 @@ public class MainActivityFragment extends Fragment {
                     startBuilder(mDecks.get(position));
                 }
             });
+            viewCardsButton.setOnLongClickListener(mLongClickListener);
             LinearLayout playButton = (LinearLayout) listItem.findViewById(R.id.btn_play);
             playButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -351,6 +360,7 @@ public class MainActivityFragment extends Fragment {
                     }
                 }
             });
+            playButton.setOnLongClickListener(mLongClickListener);
             CheckBox selectionCheck = (CheckBox) listItem.findViewById(R.id.selection_check);
             //NOTE: this isn't thread safe, so may need a lock on mSelectedDecks;
             selectionCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

@@ -100,6 +100,15 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        if(currentMode == MODE_LIST) {
+            super.onBackPressed();
+        } else {
+            swapFragment(MODE_LIST);
+        }
+    }
+
     public void onDeckSelected(Deck d){
         mSelectedDeck = d;
         swapFragment(MODE_PLAYER);
