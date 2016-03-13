@@ -1,6 +1,8 @@
 package com.padgrayson91.flashcards;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,8 +28,11 @@ import java.util.Collections;
 import java.util.Set;
 
 import static com.padgrayson91.flashcards.Constants.ACTION_BUILD_DECK;
+import static com.padgrayson91.flashcards.Constants.ERROR_EMPTY_NAME;
+import static com.padgrayson91.flashcards.Constants.ERROR_WRITE_FAILED;
 import static com.padgrayson91.flashcards.Constants.EXTRA_DECK_NAME;
 import static com.padgrayson91.flashcards.Constants.REQUEST_CODE_BUILD_DECK;
+import static com.padgrayson91.flashcards.Constants.SUCCESS;
 
 /**
  * A fragment containing the list of available decks
@@ -36,13 +43,16 @@ public class MainActivityFragment extends Fragment {
     private static final String TAG = "FlashCards";
 
     private ArrayList<Deck> mDecks;
+    private ArrayList<Deck> mSelectedDecks;
     private TextView mEmptyText;
     private ListView mDeckList;
     private Storage mStorage;
     private DeckListAdapter mDeckAdapter;
+    private Menu mMenu;
 
     public MainActivityFragment() {
         mDecks = new ArrayList<Deck>();
+        mSelectedDecks = new ArrayList<Deck>();
     }
 
     @Override
@@ -78,16 +88,59 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        //TODO: should only add delete option when selection is made
+        mMenu = menu;
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_fragment_main, menu);
+    }
+
+    @Override
+    public void onDestroyOptionsMenu() {
+        mMenu = null;
+        super.onDestroyOptionsMenu();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_delete){
+            //TODO: ask user if they're sure
             deleteSelectedDecks();
             return true;
+        } else if(id == R.id.action_merge){
+            final EditText input = new EditText(getActivity());
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            input.setLayoutParams(lp);
+            AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+                    .setTitle(getResources().getString(R.string.alert_name_deck))
+                    .setView(input)
+                    .setPositiveButton(getResources().getString(R.string.alert_name_accept), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Storage storage = new Storage(getActivity());
+                            String deckName = input.getText().toString();
+                            int result = storage.storeDeck(deckName, true);
+                            switch (result) {
+                                case ERROR_EMPTY_NAME:
+                                    Toast.makeText(getActivity(), "You must give your deck a name!", Toast.LENGTH_LONG).show();
+                                    break;
+                                case ERROR_WRITE_FAILED:
+                                    Toast.makeText(getActivity(), "Oops, somethings went wrong!", Toast.LENGTH_LONG).show();
+                                    break;
+                                case SUCCESS:
+                                    mergeSelectedDecks(deckName);
+                                    Toast.makeText(getActivity(), "Decks merged!", Toast.LENGTH_SHORT).show();
+                                    break;
+                            }
+                        }
+                    }).setNegativeButton(getResources().getString(R.string.alert_name_cancel), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).show();
         }
 
         return super.onOptionsItemSelected(item);
@@ -95,14 +148,31 @@ public class MainActivityFragment extends Fragment {
 
 
     public void deleteSelectedDecks(){
-        Log.d(TAG, "Deleting decks");
-        for(int i = 0; i < mDecks.size(); i++){
-            boolean selected = ((CheckBox) mDeckList.getChildAt(i).findViewById(R.id.selection_check)).isChecked();
-            if(selected){
-                mStorage.removeDeck(mDecks.get(i).getName());
-            }
+        for(Deck d: mSelectedDecks){
+            mStorage.removeDeck(d.getName());
         }
+        //clear the list of selected decks
+        mSelectedDecks = new ArrayList<>();
         Toast.makeText(getActivity(), "Decks deleted", Toast.LENGTH_SHORT).show();
+        updateDecks();
+    }
+
+    public void mergeSelectedDecks(String newName){
+        if(mSelectedDecks.size() <= 1)
+            return;
+        Deck primary = mSelectedDecks.get(0);
+        for(int i = 1; i < mSelectedDecks.size(); i++){
+            Deck secondary = mSelectedDecks.get(i);
+            primary.merge(secondary);
+        }
+        for(Deck d: mSelectedDecks){
+            mStorage.removeDeck(d.getName());
+        }
+        mStorage.storeDeck(newName);
+        primary.rename(newName);
+        mStorage.writeDeckToFile(primary);
+        //clear the list of selected decks
+        mSelectedDecks = new ArrayList<>();
         updateDecks();
     }
 
@@ -203,7 +273,7 @@ public class MainActivityFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     Deck d = mDecks.get(position);
-                    if(d.getSize() > 0){
+                    if (d.getSize() > 0) {
                         ((MainActivity) getActivity()).onDeckSelected(d);
                     } else {
                         Toast.makeText(getContext(), "You need to add cards first!", Toast.LENGTH_SHORT).show();
@@ -211,6 +281,38 @@ public class MainActivityFragment extends Fragment {
                     }
                 }
             });
+            CheckBox selectionCheck = (CheckBox) listItem.findViewById(R.id.selection_check);
+            //NOTE: this isn't thread safe, so may need a lock on mSelectedDecks;
+            selectionCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    Deck d = mDecks.get(position);
+                    int oldSize = mSelectedDecks.size();
+                    if(isChecked){
+                        if(!mSelectedDecks.contains(d)){
+                            mSelectedDecks.add(d);
+                        }
+                    } else {
+                        if(mSelectedDecks.contains(d)){
+                            mSelectedDecks.remove(d);
+                        }
+                    }
+                    int newSize = mSelectedDecks.size();
+                    if(oldSize < 2 && newSize >= 2){
+                        mMenu.setGroupVisible(R.id.group_actions_two_or_more, true);
+                    }
+                    if(oldSize == 0 && newSize >= 1){
+                        mMenu.setGroupVisible(R.id.group_actions_one_or_more, true);
+                    }
+                    if(oldSize >= 2 && newSize <= 1){
+                        mMenu.setGroupVisible(R.id.group_actions_two_or_more, false);
+                    }
+                    if(oldSize >= 1 && newSize == 0){
+                        mMenu.setGroupVisible(R.id.group_actions_one_or_more, false);
+                    }
+                }
+            });
+
             deckNameView.setText(mDecks.get(position).getName());
             deckSizeView.setText(getResources().getQuantityString(R.plurals.card_count, mDecks.get(position).getSize(), mDecks.get(position).getSize()));
             listItem.setBackgroundColor(mDecks.get(position).getColor());

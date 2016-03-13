@@ -69,14 +69,20 @@ public class Storage {
 
     //Store and remove methods
 
+    //Convenience method, will never overwrite
+    protected int storeDeck(String deckName){
+        return storeDeck(deckName, false);
+    }
+
     /***
      * In addition to adding the name to list of decks, this method will create the flashcard data
      * folder and initial file so that it can be accessed later
      * @param deckName The name of the deck to be stored
+     * @param overWrite If true, a previous deck with this name can be overwritten
      * @return either Constants.SUCCESS, Constants.ERROR_DUPLICATE_NAME, or Constants.ERROR_WRITE_FAILED
      *
      */
-    protected int storeDeck(String deckName){
+    protected int storeDeck(String deckName, boolean overWrite){
         Log.d(TAG, "Storing deck " + deckName);
         //need to make a copy or sharedprefs won't hang on to changes...
         Set<String> temp = getDecks();
@@ -84,7 +90,7 @@ public class Storage {
         for(String s: temp){
             decks.add(s);
         }
-        if(decks.contains(deckName)){
+        if(decks.contains(deckName) && !overWrite){
             return ERROR_DUPLICATE_NAME;
         } else {
             Log.d(TAG, "Added to set");

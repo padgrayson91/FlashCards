@@ -72,6 +72,22 @@ public class Deck implements Comparable {
 
     }
 
+    public void merge(Deck other){
+        Card c;
+        while((c= other.getNextCard()) != null){
+            addCard(c);
+        }
+    }
+
+    /***
+     * Renames the deck. Note: this does not rename the folder used for the deck
+     * A new folder should be created and the old one deleted
+     * @param name
+     */
+    public void rename(String name){
+        this.name = name;
+    }
+
     public String getName(){
         return name;
     }
