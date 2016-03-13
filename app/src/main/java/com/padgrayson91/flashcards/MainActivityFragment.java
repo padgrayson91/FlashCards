@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -70,6 +71,7 @@ public class MainActivityFragment extends Fragment {
         mDeckAdapter = new DeckListAdapter();
         mDeckList.setAdapter(mDeckAdapter);
         mDeckList.setOnItemClickListener(mItemClickListener);
+        mDeckList.setOnItemLongClickListener(mItemLongClickListener);
 
         if(mDecks.size() != 0){
             mEmptyText.setVisibility(View.GONE);
@@ -187,6 +189,7 @@ public class MainActivityFragment extends Fragment {
         //clear the list of selected decks
         mSelectedDecks = new ArrayList<>();
         Toast.makeText(getActivity(), "Decks deleted", Toast.LENGTH_SHORT).show();
+        showChecks(false);
         updateDecks();
     }
 
@@ -206,6 +209,7 @@ public class MainActivityFragment extends Fragment {
         mStorage.writeDeckToFile(primary);
         //clear the list of selected decks
         mSelectedDecks = new ArrayList<>();
+        showChecks(false);
     }
 
     public void updateDecks(){
@@ -257,6 +261,19 @@ public class MainActivityFragment extends Fragment {
         startActivityForResult(deckBuilderIntent, REQUEST_CODE_BUILD_DECK);
     }
 
+    private void showChecks(boolean show){
+        for(int i = 0; i < mDeckAdapter.getCount(); i++){
+            View v = getViewByPosition(i, mDeckList);
+            LinearLayout selectionLayout = (LinearLayout) v.findViewById(R.id.checkbox_layout);
+            if(show) {
+                selectionLayout.setVisibility(View.VISIBLE);
+            } else {
+                selectionLayout.setVisibility(View.GONE);
+            }
+
+        }
+    }
+
     private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -266,6 +283,17 @@ public class MainActivityFragment extends Fragment {
             } else {
                 startBuilder(d);
             }
+        }
+    };
+
+    private AdapterView.OnItemLongClickListener mItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            CheckBox selectionCheck = (CheckBox) view.findViewById(R.id.selection_check);
+            selectionCheck.setChecked(true);
+
+            showChecks(true);
+            return true;
         }
     };
 
@@ -292,6 +320,16 @@ public class MainActivityFragment extends Fragment {
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             LinearLayout listItem = (LinearLayout) inflater.inflate(R.layout.list_item_deck, parent, false);
             TextView deckNameView = (TextView) listItem.findViewById(R.id.view_deck_name);
+            TextView lastPlayedView = (TextView) listItem.findViewById(R.id.last_played_text);
+
+            try {
+                GradientDrawable lastPlayedBg = (GradientDrawable) getResources().getDrawable(R.drawable.time_indicator_bubble);
+                lastPlayedBg.setColor(mDecks.get(position).getDarkColor());
+                Log.d(TAG, "Setting background: " + lastPlayedBg.toString());
+                lastPlayedView.setBackground(lastPlayedBg);
+            } catch (ClassCastException ex) {
+                Log.d(TAG, "Unable to cast drawable to gradient drawable");
+            }
             TextView deckSizeView = (TextView) listItem.findViewById(R.id.view_deck_size);
             LinearLayout viewCardsButton = (LinearLayout) listItem.findViewById(R.id.btn_view_cards);
             viewCardsButton.setOnClickListener(new View.OnClickListener() {
@@ -341,6 +379,7 @@ public class MainActivityFragment extends Fragment {
                     }
                     if(oldSize >= 1 && newSize == 0){
                         mMenu.setGroupVisible(R.id.group_actions_one_or_more, false);
+                        showChecks(false);
                     }
                 }
             });
@@ -351,6 +390,19 @@ public class MainActivityFragment extends Fragment {
 
             return listItem;
 
+        }
+    }
+
+    //http://stackoverflow.com/questions/24811536/android-listview-get-item-view-by-position
+    public View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+            return listView.getAdapter().getView(pos, null, listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
         }
     }
 }

@@ -73,6 +73,7 @@ public class CardListFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        //TODO: should only show delete option when a card is selected
         inflater.inflate(R.menu.menu_fragment_card_list, menu);
     }
 
@@ -80,6 +81,7 @@ public class CardListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_delete){
+            //TODO: confirmation dialog
             deleteSelectedCards();
             return true;
         } else {
@@ -156,7 +158,6 @@ public class CardListFragment extends Fragment {
             TextView cardQuestionView = (TextView) listItem.findViewById(R.id.view_card_question);
             TextView cardScoreView = (TextView) listItem.findViewById(R.id.view_card_score);
             cardQuestionView.setText(mCards.get(position).getQuestion());
-
             int score = mCards.get(position).getScore();
             String scoreText = String.format(getResources().getString(R.string.score_text), score);
             cardScoreView.setText(scoreText);

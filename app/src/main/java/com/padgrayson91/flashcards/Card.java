@@ -20,6 +20,9 @@ import static com.padgrayson91.flashcards.Constants.KEY_TIMES_INCORRECT;
  * Created by patrickgrayson on 3/10/16.
  */
 public class Card implements Comparable{
+    //TODO: time stamps for cards, one for last correct, and one for last incorrect.  To be used for scoring
+    private long timeLastCorrect;
+    private long timeLastIncorrect;
     private JSONObject mJson;
     private String question;
     private String answer;
@@ -27,6 +30,10 @@ public class Card implements Comparable{
     private int correctCount;
     private ArrayList<String> options;
     public String id;
+
+    private static final int MIN_R = 50;
+    private static final int MIN_G = 50;
+    private static final int MIN_B = 50;
 
     public static final int SORT_MODE_SCORE = 0;
     public static final int SORT_MODE_ALPHA = 1;
@@ -153,7 +160,15 @@ public class Card implements Comparable{
     }
 
     //TODO: make a more interesting scoring algorithm
+
+    /***
+     * Method to get the score associated with a card.  Cards with more correct responses will have
+     * a higher score
+     * @return
+     */
     public int getScore(){
+        //Potential new formula: correctCount/Min(convertToHours(system time - last correct time), 1)
+        //                       - incorrectCount/Min(convertToHours(system time - last incorrect time), 1)
         return correctCount - incorrectCount;
     }
 
@@ -161,10 +176,28 @@ public class Card implements Comparable{
         int score = getScore();
 
         if(score > 0){
-            return Color.argb(255, 255 - 10*score, 255, 255 - 10*score);
+            return Color.argb(255, Math.max(255 - 10*score, MIN_R), 255, Math.max(255 - 10*score, MIN_B));
         } else {
-            return Color.argb(255, 255, 255 + 10*score, 255 + 10*score);
+            return Color.argb(255, 255, Math.max(255 + 10*score, MIN_G), Math.max(255 + 10*score, MIN_B));
         }
+    }
+
+    public int getDarkColor(){
+        int color = getColor();
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        if(green > red){
+            //We're green, make us more green
+            color = Color.argb(255, red - MIN_R, green, blue - MIN_B);
+        } else if(green < red){
+            //We're red, make us more red
+            color = Color.argb(255, red, green - MIN_G, blue - MIN_B);
+        } else {
+            //We're white, so use gray
+            color = Color.LTGRAY;
+        }
+        return color;
     }
 
     public static void setSortMode(int mode){

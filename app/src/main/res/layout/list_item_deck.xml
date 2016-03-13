@@ -2,8 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:descendantFocusability="blocksDescendants">
+    android:descendantFocusability="blocksDescendants"
+    android:baselineAligned="false">
     <LinearLayout
+        android:id="@+id/checkbox_layout"
+        android:visibility="gone"
+        android:background="@color/colorPrimaryDark"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -14,6 +18,19 @@
             android:layout_width="wrap_content"
             android:gravity="center"
             android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingLeft="8dp">
+        <TextView
+            android:id="@+id/last_played_text"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/btn_play"
@@ -27,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="8"
-            android:textSize="14pt"
+            android:textSize="10pt"
             android:gravity="center"
             android:text="Deck Name"
             android:ellipsize="end"
@@ -52,7 +69,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_weight="5">
+        android:layout_weight="3">
         <TextView
             android:id="@+id/view_deck_size"
             android:padding="8dp"

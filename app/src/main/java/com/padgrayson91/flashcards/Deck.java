@@ -32,6 +32,10 @@ public class Deck implements Comparable {
     public static final int SORT_MODE_ALPHA = 1;
     private static int SORT_MODE;
 
+    private static final int MIN_R = 50;
+    private static final int MIN_G = 50;
+    private static final int MIN_B = 50;
+
     public Deck(String name){
         mJson = new JSONObject();
         cards = new HashMap<String, Card>();
@@ -114,10 +118,28 @@ public class Deck implements Comparable {
     public int getColor(){
         int totalScore = getScore();
         if(totalScore > 0){
-            return Color.argb(255, 255 - 10 * totalScore, 255, 255 - 10 * totalScore);
+            return Color.argb(255, Math.max(255 - 10*totalScore, MIN_R), 255, Math.max(255 - 10*totalScore, MIN_B));
         } else {
-            return Color.argb(255, 255, 255 + 10*totalScore, 255 + 10*totalScore);
+            return Color.argb(255, 255, Math.max(255 + 10*totalScore, MIN_G), Math.max(255 + 10*totalScore, MIN_B));
         }
+    }
+
+    public int getDarkColor(){
+        int color = getColor();
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        if(green > red){
+            //We're green, make us more green
+            color = Color.argb(255, red - MIN_R, green, blue - MIN_B);
+        } else if(green < red){
+            //We're red, make us more red
+            color = Color.argb(255, red, green - MIN_G, blue - MIN_B);
+        } else {
+            //We're white, so use gray
+            color = Color.LTGRAY;
+        }
+        return color;
     }
 
     public HashMap<String, Card> getCards(){
