@@ -57,11 +57,9 @@ public class DeckBuilderActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
-
-        //TODO: should let user change some settings
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent i = new Intent(DeckBuilderActivity.this, SettingsActivity.class);
+            startActivity(i);
             return true;
         }
 
@@ -92,8 +90,6 @@ public class DeckBuilderActivity extends AppCompatActivity {
             finish();
         }
         mStorage = new Storage(this);
-        //Always initialize sorting on startup
-        Card.setSortMode(mStorage.getCardSortMode());
         mDeck = mStorage.readDeckFromFile(deckName);
         if(mDeck == null){
             setResult(RESULT_CANCELED);
@@ -170,8 +166,9 @@ public class DeckBuilderActivity extends AppCompatActivity {
                 });
                 break;
             case MODE_LIST:
-                fragment = new CardListFragment();
-                ((CardListFragment) fragment).setDeck(mDeck);
+                Bundle extras = new Bundle();
+                extras.putString(EXTRA_DECK_NAME, mDeck.getName());
+                fragment = Fragment.instantiate(DeckBuilderActivity.this, CardListFragment.class.getName(), extras);
                 TAG = TAG_LIST;
                 updateButton(drawable.ic_input_add);
                 mFloatButton.setOnClickListener(new View.OnClickListener() {

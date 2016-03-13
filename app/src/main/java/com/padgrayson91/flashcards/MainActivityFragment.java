@@ -72,7 +72,6 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onResume() {
         Log.d(TAG, "Fragment Resumed!");
-        Deck.setSortMode(mStorage.getDeckSortMode());
         updateDecks();
         super.onResume();
     }
@@ -136,6 +135,14 @@ public class MainActivityFragment extends Fragment {
                 }
             }
         }
+        sortDecks();
+    }
+
+    //Need to makes sure sort mode is correct before sorting
+    private void sortDecks(){
+        try{
+            Deck.setSortMode(mStorage.getDeckSortMode());
+        } catch (NullPointerException ex) {}
         Collections.sort(mDecks);
     }
 

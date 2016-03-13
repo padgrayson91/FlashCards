@@ -54,6 +54,8 @@ public class CardViewerActivity extends AppCompatActivity {
                 cards.add(c);
             }
         }
+        //Always initialize sorting on startup
+        Card.setSortMode(mStorage.getCardSortMode());
         Collections.sort(cards);
         for(Card c: cards){
                 //Make a fragment for each card

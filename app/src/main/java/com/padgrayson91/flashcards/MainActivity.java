@@ -45,8 +45,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mStorage = new Storage(this);
-        //Make sure decks are sorted correctly on startup
-        Deck.setSortMode(mStorage.getDeckSortMode());
 
         if(savedInstanceState != null){
             currentMode = savedInstanceState.getInt(KEY_MODE);

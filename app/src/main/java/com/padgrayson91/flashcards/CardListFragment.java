@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +28,8 @@ import java.util.HashMap;
  * Created by patrickgrayson on 3/10/16.
  */
 public class CardListFragment extends Fragment {
+    private static final String TAG = "FlashCards";
+
     private ArrayList<Card> mCards;
     private Deck mDeck;
     private ListView mCardList;
@@ -36,14 +39,6 @@ public class CardListFragment extends Fragment {
 
     public CardListFragment(){
         mCards = new ArrayList<Card>();
-        Bundle args = getArguments();
-        if(args != null && getContext() != null){
-            mStorage = new Storage(getContext());
-            String deckName = args.getString(Constants.EXTRA_DECK_NAME, "");
-            if(!deckName.equals("")){
-                setDeck(mStorage.readDeckFromFile(deckName));
-            }
-        }
     }
 
 
@@ -52,6 +47,16 @@ public class CardListFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_card_list, container, false);
         mEmptyText = (TextView) root.findViewById(R.id.view_empty_text);
         mCardList = (ListView) root.findViewById(R.id.card_list);
+        Bundle args = getArguments();
+        Log.d(TAG, "Arguments: " + args + " Context: " + getContext());
+        if(args != null && getContext() != null){
+            mStorage = new Storage(getContext());
+            String deckName = args.getString(Constants.EXTRA_DECK_NAME, "");
+            if(!deckName.equals("")){
+                Log.d(TAG, "Got Deck name!");
+                setDeck(mStorage.readDeckFromFile(deckName));
+            }
+        }
         if(mCards.size() > 0){
             mCardList.setVisibility(View.VISIBLE);
             mEmptyText.setVisibility(View.GONE);
@@ -100,10 +105,18 @@ public class CardListFragment extends Fragment {
         for(String s: temp.keySet()){
             mCards.add(temp.get(s));
         }
-        Collections.sort(mCards);
+        sortCards();
         if(mCardAdapter != null){
             mCardAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void sortCards(){
+        //Always set sort mode before performing a sort
+        try {
+            Card.setSortMode(mStorage.getCardSortMode());
+        } catch (NullPointerException ex){}
+        Collections.sort(mCards);
     }
 
     AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {

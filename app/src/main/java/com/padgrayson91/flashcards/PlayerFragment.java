@@ -25,6 +25,7 @@ public class PlayerFragment extends Fragment {
 
     private static final String KEY_CARD_ID = "card_id";
     private static final String KEY_DECK_NAME = "deck_name";
+    private static long CARD_DELAY = 2000;
 
     private Deck mDeck;
     private Card mCurrentCard;
@@ -72,7 +73,7 @@ public class PlayerFragment extends Fragment {
                                 playFinished();
                             }
                         }
-                    }, 3000);
+                    }, CARD_DELAY);
                 }
             });
         }
@@ -116,6 +117,9 @@ public class PlayerFragment extends Fragment {
         if(mDeck != null){
             outState.putString(KEY_DECK_NAME, mDeck.getName());
         }
+        //Save the deck to file so we don't lose card scores
+        Storage storage = new Storage(getActivity());
+        storage.writeDeckToFile(mDeck);
         super.onSaveInstanceState(outState);
     }
 
