@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Formatter;
 import java.util.Set;
 
 import static com.padgrayson91.flashcards.Constants.ACTION_BUILD_DECK;
@@ -88,7 +89,6 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //TODO: should only add delete option when selection is made
         mMenu = menu;
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_fragment_main, menu);
@@ -104,48 +104,81 @@ public class MainActivityFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_delete){
-            //TODO: ask user if they're sure
-            deleteSelectedDecks();
+            promptDeleteDecks();
             return true;
         } else if(id == R.id.action_merge){
-            final EditText input = new EditText(getActivity());
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT);
-            input.setLayoutParams(lp);
-            AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                    .setTitle(getResources().getString(R.string.alert_name_deck))
-                    .setView(input)
-                    .setPositiveButton(getResources().getString(R.string.alert_name_accept), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Storage storage = new Storage(getActivity());
-                            String deckName = input.getText().toString();
-                            int result = storage.storeDeck(deckName, true);
-                            switch (result) {
-                                case ERROR_EMPTY_NAME:
-                                    Toast.makeText(getActivity(), "You must give your deck a name!", Toast.LENGTH_LONG).show();
-                                    break;
-                                case ERROR_WRITE_FAILED:
-                                    Toast.makeText(getActivity(), "Oops, somethings went wrong!", Toast.LENGTH_LONG).show();
-                                    break;
-                                case SUCCESS:
-                                    mergeSelectedDecks(deckName);
-                                    Toast.makeText(getActivity(), "Decks merged!", Toast.LENGTH_SHORT).show();
-                                    break;
-                            }
-                        }
-                    }).setNegativeButton(getResources().getString(R.string.alert_name_cancel), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    }).show();
+            promptCreateDeck(true);
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    public void promptCreateDeck(final boolean isMerge){
+        final Context context = getActivity();
+        if(context == null){
+            return;
+        }
+        final EditText input = new EditText(context);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle(getResources().getString(R.string.alert_name_deck))
+                .setView(input)
+                .setPositiveButton(getResources().getString(R.string.alert_name_accept), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Storage storage = new Storage(context);
+                        String deckName = input.getText().toString();
+                        int result = storage.storeDeck(deckName, isMerge);
+                        switch (result) {
+                            case ERROR_EMPTY_NAME:
+                                Toast.makeText(context, "You must give your deck a name!", Toast.LENGTH_LONG).show();
+                                break;
+                            case ERROR_WRITE_FAILED:
+                                Toast.makeText(context, "Oops, somethings went wrong!", Toast.LENGTH_LONG).show();
+                                break;
+                            case SUCCESS:
+                                if (isMerge) {
+                                    mergeSelectedDecks(deckName);
+                                    Toast.makeText(context, "Decks merged!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(context, "Deck created!", Toast.LENGTH_SHORT).show();
+                                }
+                                updateDecks();
+                                break;
+                        }
+                    }
+                }).setNegativeButton(getResources().getString(R.string.alert_name_cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).show();
+    }
+
+    public void promptDeleteDecks(){
+        Context context = getActivity();
+        if(context == null){
+            return;
+        }
+        Formatter formatter = new Formatter();
+        String promptText = getResources().getQuantityString(R.plurals.alert_delete_deck, mSelectedDecks.size(), mSelectedDecks.size());
+        new AlertDialog.Builder(context).setCancelable(true)
+                .setMessage(promptText)
+                .setPositiveButton(getResources().getString(R.string.alert_yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteSelectedDecks();
+                    }
+                }).setNegativeButton(getResources().getString(R.string.alert_name_cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        }).show();
+    }
 
     public void deleteSelectedDecks(){
         for(Deck d: mSelectedDecks){
@@ -173,7 +206,6 @@ public class MainActivityFragment extends Fragment {
         mStorage.writeDeckToFile(primary);
         //clear the list of selected decks
         mSelectedDecks = new ArrayList<>();
-        updateDecks();
     }
 
     public void updateDecks(){

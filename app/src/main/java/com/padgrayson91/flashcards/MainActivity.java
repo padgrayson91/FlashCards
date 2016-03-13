@@ -1,7 +1,5 @@
 package com.padgrayson91.flashcards;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,14 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
-
-import static com.padgrayson91.flashcards.Constants.ERROR_DUPLICATE_NAME;
-import static com.padgrayson91.flashcards.Constants.ERROR_EMPTY_NAME;
-import static com.padgrayson91.flashcards.Constants.ERROR_WRITE_FAILED;
-import static com.padgrayson91.flashcards.Constants.SUCCESS;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "FlashCards";
@@ -60,43 +51,12 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final EditText input = new EditText(MainActivity.this);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                input.setLayoutParams(lp);
-                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
-                        .setTitle(getResources().getString(R.string.alert_name_deck))
-                        .setView(input)
-                        .setPositiveButton(getResources().getString(R.string.alert_name_accept), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Storage storage = new Storage(MainActivity.this);
-                                String deckName = input.getText().toString();
-                                int result = storage.storeDeck(deckName);
-                                switch (result) {
-                                    case ERROR_DUPLICATE_NAME:
-                                        Toast.makeText(MainActivity.this, "Deck already exists!", Toast.LENGTH_LONG).show();
-                                        break;
-                                    case ERROR_EMPTY_NAME:
-                                        Toast.makeText(MainActivity.this, "You must give your deck a name!", Toast.LENGTH_LONG).show();
-                                        break;
-                                    case ERROR_WRITE_FAILED:
-                                        Toast.makeText(MainActivity.this, "Oops, somethings went wrong!", Toast.LENGTH_LONG).show();
-                                        break;
-                                    case SUCCESS:
-                                        Toast.makeText(MainActivity.this, "Deck " + deckName + " created!", Toast.LENGTH_SHORT).show();
-                                        MainActivityFragment maf = (MainActivityFragment) getSupportFragmentManager().findFragmentByTag(TAG_LIST);
-                                        maf.updateDecks();
-                                        break;
-                                }
-                            }
-                        }).setNegativeButton(getResources().getString(R.string.alert_name_cancel), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        }).show();
+                MainActivityFragment maf = (MainActivityFragment) getSupportFragmentManager().findFragmentByTag(TAG_LIST);
+                if(maf != null){
+                    maf.promptCreateDeck(false);
+                } else {
+                    Log.d(TAG, "Deck List fragment was null");
+                }
             }
         });
     }
