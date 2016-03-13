@@ -70,6 +70,14 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        Log.d(TAG, "Fragment Resumed!");
+        Deck.setSortMode(mStorage.getDeckSortMode());
+        updateDecks();
+        super.onResume();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_fragment_main, menu);

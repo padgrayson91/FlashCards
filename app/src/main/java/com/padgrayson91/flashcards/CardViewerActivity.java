@@ -28,6 +28,8 @@ public class CardViewerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_card_viewer);
         mStorage = new Storage(CardViewerActivity.this);
+        //Always initialize sorting on startup
+        Card.setSortMode(mStorage.getCardSortMode());
         Intent intent = getIntent();
         if(intent != null){
             Bundle extras = intent.getExtras();

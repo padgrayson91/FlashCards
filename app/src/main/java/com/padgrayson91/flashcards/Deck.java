@@ -28,6 +28,10 @@ public class Deck implements Comparable {
     private String name;
     private Iterator<String> mCardIterator;
 
+    public static final int SORT_MODE_SCORE = 0;
+    public static final int SORT_MODE_ALPHA = 1;
+    private static int SORT_MODE;
+
     public Deck(String name){
         mJson = new JSONObject();
         cards = new HashMap<String, Card>();
@@ -80,7 +84,7 @@ public class Deck implements Comparable {
         }
     }
 
-    public int getColor(){
+    public int getScore(){
         int totalScore = 0;
         for(String s: cards.keySet()){
             totalScore += cards.get(s).getScore();
@@ -88,6 +92,11 @@ public class Deck implements Comparable {
 
         }
         totalScore = totalScore/(Math.max(1, cards.keySet().size()));
+        return totalScore;
+    }
+
+    public int getColor(){
+        int totalScore = getScore();
         if(totalScore > 0){
             return Color.argb(255, 255 - 10 * totalScore, 255, 255 - 10 * totalScore);
         } else {
@@ -188,11 +197,23 @@ public class Deck implements Comparable {
         }
     }
 
-    //TODO: should have comparison modes so that we can sort in other ways
+    public static void setSortMode(int mode){
+        SORT_MODE = mode;
+    }
+
     @Override
     public int compareTo(Object other){
         if(other instanceof Deck){
-            return this.getName().compareTo(((Deck) other).getName());
+            int returnValue = 0;
+            switch (SORT_MODE) {
+                case SORT_MODE_ALPHA:
+                    returnValue = this.getName().compareTo(((Deck) other).getName());
+                    break;
+                case SORT_MODE_SCORE:
+                    returnValue = this.getScore() - ((Deck) other).getScore();
+                    break;
+            }
+            return returnValue;
         }
         else return 0;
 

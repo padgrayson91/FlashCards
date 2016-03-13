@@ -3,6 +3,7 @@ package com.padgrayson91.flashcards;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -33,6 +34,8 @@ public class Storage {
 
     //Date to be stored
     private static final String PROPERTY_DECKS = "decks_info";
+    private static final String PROPERTY_CARD_SORT = "pref_sort_cards";
+    private static final String PROPERTY_DECK_SORT = "pref_sort_decks";
 
 
     public Storage(Context context){
@@ -43,6 +46,24 @@ public class Storage {
     //Get methods
     protected Set<String> getDecks(){
         return mPrefs.getStringSet(PROPERTY_DECKS, new HashSet<String>());
+    }
+
+    protected int getCardSortMode(){
+        try {
+            Log.d(TAG, "Card sort mode " + PreferenceManager.getDefaultSharedPreferences(mContext).getString(PROPERTY_CARD_SORT, "BLAH"));
+            return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mContext).getString(PROPERTY_CARD_SORT, "0"));
+        } catch (NumberFormatException ex) {
+            Log.d(TAG, "Card sort mode wasn't number " + PreferenceManager.getDefaultSharedPreferences(mContext).getString(PROPERTY_CARD_SORT, "0"));
+            return 0;
+        }
+    }
+
+    protected int getDeckSortMode(){
+        try {
+            return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(mContext).getString(PROPERTY_DECK_SORT, "1"));
+        } catch (NumberFormatException ex) {
+            return 1;
+        }
     }
 
 

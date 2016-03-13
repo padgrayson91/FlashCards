@@ -92,6 +92,8 @@ public class DeckBuilderActivity extends AppCompatActivity {
             finish();
         }
         mStorage = new Storage(this);
+        //Always initialize sorting on startup
+        Card.setSortMode(mStorage.getCardSortMode());
         mDeck = mStorage.readDeckFromFile(deckName);
         if(mDeck == null){
             setResult(RESULT_CANCELED);
@@ -145,7 +147,7 @@ public class DeckBuilderActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         CardBuilderFragment builderFragment = (CardBuilderFragment) getSupportFragmentManager().findFragmentByTag(TAG_BUILDER);
                         int result = builderFragment.validateAndSave(mDeck);
-                        switch (result){
+                        switch (result) {
                             case SUCCESS:
                                 //switch back to list and update
                                 swapFragment(MODE_LIST);

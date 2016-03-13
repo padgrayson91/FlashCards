@@ -29,6 +29,9 @@
         <activity android:name=".CardViewerActivity"
             android:label="@string/app_name">
         </activity>
+        <activity android:name=".SettingsActivity"
+            android:label="@string/settings_activity_name">
+        </activity>
     </application>
 
 </manifest>

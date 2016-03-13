@@ -28,6 +28,10 @@ public class Card implements Comparable{
     private ArrayList<String> options;
     public String id;
 
+    public static final int SORT_MODE_SCORE = 0;
+    public static final int SORT_MODE_ALPHA = 1;
+    private static int SORT_MODE;
+
     /***
      * Constructor to be used when building a card for the first time
      * @param id
@@ -163,22 +167,33 @@ public class Card implements Comparable{
         }
     }
 
+    public static void setSortMode(int mode){
+        SORT_MODE = mode;
+    }
+
     @Override
     public String toString(){
         return mJson.toString();
     }
 
 
-    //TODO: should have comparison modes so that we can sort in other ways
     @Override
     public int compareTo(Object other){
         if(other instanceof Card){
-            if(this.getScore() == ((Card) other).getScore()){
-                return this.id.compareTo(((Card) other).id);
+            int compareValue = 0;
+            switch (SORT_MODE) {
+                case SORT_MODE_SCORE:
+                    if (this.getScore() == ((Card) other).getScore()) {
+                        compareValue = this.id.compareTo(((Card) other).id);
+                    } else {
+                        compareValue = this.getScore() - ((Card) other).getScore();
+                    }
+                    break;
+                case SORT_MODE_ALPHA:
+                    compareValue = this.question.compareTo(((Card) other).getQuestion());
+                    break;
             }
-            else {
-                return this.getScore() - ((Card) other).getScore();
-            }
+            return compareValue;
         }
         else {
             return 0;

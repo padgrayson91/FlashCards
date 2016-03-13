@@ -2,6 +2,7 @@ package com.padgrayson91.flashcards;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG_LIST = "display_list";
     private static final String TAG_PLAY = "play_deck";
+    private Storage mStorage;
 
     private Deck mSelectedDeck;
 
@@ -42,10 +44,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mStorage = new Storage(this);
+        //Make sure decks are sorted correctly on startup
+        Deck.setSortMode(mStorage.getDeckSortMode());
+
         if(savedInstanceState != null){
             currentMode = savedInstanceState.getInt(KEY_MODE);
-            Storage storage = new Storage(MainActivity.this);
-            mSelectedDeck = storage.readDeckFromFile(savedInstanceState.getString(KEY_DECK, ""));
+            mSelectedDeck = mStorage.readDeckFromFile(savedInstanceState.getString(KEY_DECK, ""));
         } else {
             currentMode = MODE_LIST;
         }
@@ -127,10 +132,10 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-
-        //TODO: should let user change some settings
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(i);
             return true;
         }
 

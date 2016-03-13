@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_activity_name">Settings</string>
+    <string name="preference_category_title_layout">Layout</string>
+    <string name="preference_title_sort_cards">Sort cards</string>
+    <string name="preference_title_sort_decks">Sort decks</string>
+    <string-array name="preference_options_sort">
+        <item>By score</item>
+        <item>Alphabetically</item>
+    </string-array>
+    <string name="preference_summary_sort_cards">%s</string>
+    <string name="preference_summary_sort_decks">%s</string>
+
+</resources>
