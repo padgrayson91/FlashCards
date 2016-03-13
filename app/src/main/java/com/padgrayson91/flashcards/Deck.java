@@ -87,9 +87,9 @@ public class Deck implements Comparable {
 
 
         }
-        totalScore = totalScore/cards.keySet().size();
+        totalScore = totalScore/(Math.max(1, cards.keySet().size()));
         if(totalScore > 0){
-            return Color.argb(255, 255 - 10*totalScore, 255, 255 - 10*totalScore);
+            return Color.argb(255, 255 - 10 * totalScore, 255, 255 - 10 * totalScore);
         } else {
             return Color.argb(255, 255, 255 + 10*totalScore, 255 + 10*totalScore);
         }
@@ -130,6 +130,19 @@ public class Deck implements Comparable {
             cards.put(c.id, c);
             return SUCCESS;
         }
+    }
+
+    public Card iterateToCard(String id){
+        mCardIterator = cards.keySet().iterator();
+        Card requested = null;
+        while(mCardIterator.hasNext()){
+            String nextId = mCardIterator.next();
+            if(nextId.equals(id)){
+                requested = cards.get(nextId);
+                break;
+            }
+        }
+        return requested;
     }
 
     public Card getNextCard(){

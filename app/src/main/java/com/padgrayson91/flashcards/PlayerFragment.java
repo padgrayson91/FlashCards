@@ -23,6 +23,8 @@ import java.util.Random;
 public class PlayerFragment extends Fragment {
     private static final String TAG = "FlashCards";
 
+    private static final String KEY_CARD_ID = "card_id";
+    private static final String KEY_DECK_NAME = "deck_name";
 
     private Deck mDeck;
     private Card mCurrentCard;
@@ -76,6 +78,45 @@ public class PlayerFragment extends Fragment {
         }
         Log.d(TAG, "Player fragment: view created!");
         return root;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        if(savedInstanceState != null){
+            String deckName = savedInstanceState.getString(KEY_DECK_NAME, "");
+            String cardId = savedInstanceState.getString(KEY_CARD_ID, "");
+            Storage storage = new Storage(getActivity());
+            mDeck = storage.readDeckFromFile(deckName);
+            if(mDeck != null){
+                Card current = mDeck.iterateToCard(cardId);
+                if(current != null){
+                    loadCard(current);
+                }
+            }
+        }
+
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "Resuming");
+        if(mCurrentCard != null){
+            Log.d(TAG, "Had a card so we're loading it");
+            loadCard(mCurrentCard);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if(mCurrentCard != null){
+            outState.putString(KEY_CARD_ID, mCurrentCard.id);
+        }
+        if(mDeck != null){
+            outState.putString(KEY_DECK_NAME, mDeck.getName());
+        }
+        super.onSaveInstanceState(outState);
     }
 
     public void playFinished(){

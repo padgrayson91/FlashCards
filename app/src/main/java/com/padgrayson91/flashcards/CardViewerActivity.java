@@ -46,6 +46,7 @@ public class CardViewerActivity extends AppCompatActivity {
         int focusedIndex = 0;
         //First add cards to list so we can sort them
         if(mDeck != null) {
+            setTitle(mDeck.getName());
             Card c;
             while ((c = mDeck.getNextCard()) != null) {
                 cards.add(c);

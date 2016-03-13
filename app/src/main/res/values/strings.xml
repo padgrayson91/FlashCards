@@ -14,6 +14,8 @@
     <string name="notify_no_decks">You have no decks yet!  Click the + icon to get started!</string>
     <string name="notify_no_cards">Click + to start adding cards!</string>
     <string name="score_text">Score: %d</string>
+    <string name="button_text_play"></string>
+    <string name="button_text_view_cards"></string>
     <plurals name="card_count">
         <item quantity="one">%d Card</item>
         <item quantity="other">%d Cards</item>

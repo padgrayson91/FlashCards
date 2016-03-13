@@ -1,48 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants">
     <LinearLayout
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_height="0dp"
-        android:layout_weight="2">
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="2"
+        android:gravity="center">
         <CheckBox
             android:id="@+id/selection_check"
-            android:layout_width="0dp"
-            android:layout_weight="2"
+            android:layout_width="wrap_content"
             android:gravity="center"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/btn_play"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="8"
+        android:orientation="vertical">
         <TextView
             android:id="@+id/view_deck_name"
             android:padding="8dp"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="10"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="8"
             android:textSize="14pt"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:text="Deck Name"
             android:ellipsize="end"
             android:singleLine="true"/>
         <TextView
-            android:id="@+id/view_deck_size"
-            android:padding="8dp"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="3"
-            android:gravity="center_vertical"
-            android:text="0 Cards"/>
+            android:text="@string/button_text_play"
+            android:gravity="center"
+            android:textSize="10pt"/>
+
     </LinearLayout>
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/darker_gray"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"></LinearLayout>
+    <LinearLayout
+        android:id="@+id/btn_view_cards"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="5">
+        <TextView
+            android:id="@+id/view_deck_size"
+            android:padding="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="8"
+            android:gravity="center"
+            android:text="0 Cards"/>
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text=""/>
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:text="@string/button_text_view_cards"
+            android:gravity="center"
+            android:textSize="10pt"/>
     </LinearLayout>
 
 </LinearLayout>

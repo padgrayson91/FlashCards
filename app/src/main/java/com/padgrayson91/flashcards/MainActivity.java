@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     private int currentMode;
     private static final String KEY_MODE = "mode";
+    private static final String KEY_DECK = "deck";
     private static final int MODE_LIST = 0;
     private static final int MODE_PLAYER = 1;
 
@@ -42,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         if(savedInstanceState != null){
             currentMode = savedInstanceState.getInt(KEY_MODE);
+            Storage storage = new Storage(MainActivity.this);
+            mSelectedDeck = storage.readDeckFromFile(savedInstanceState.getString(KEY_DECK, ""));
         } else {
             currentMode = MODE_LIST;
         }
@@ -104,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_MODE, currentMode);
+        if(mSelectedDeck != null) {
+            outState.putString(KEY_DECK, mSelectedDeck.getName());
+        }
     }
 
     @Override
@@ -156,25 +163,56 @@ public class MainActivity extends AppCompatActivity {
     private void swapFragment(int mode){
         currentMode = mode;
         Fragment fragment = null;
+        Fragment current = null;
         String TAG = "";
+        FragmentManager fragmentManager = getSupportFragmentManager();
         switch (mode){
             case MODE_PLAYER:
-                fab.setVisibility(View.GONE);
-                fragment = new PlayerFragment();
-                ((PlayerFragment) fragment).setDeck(mSelectedDeck);
+                if(mSelectedDeck == null){
+                    TAG = TAG_LIST;
+                    fab.setVisibility(View.VISIBLE);
+                    current = fragmentManager.findFragmentByTag(TAG);
+                    if(current != null){
+                        fragment = current;
+                    } else {
+                        fragment = new MainActivityFragment();
+                        setTitle(getResources().getString(R.string.app_name));
+                    }
+                    break;
+                }
                 TAG = TAG_PLAY;
+                fab.setVisibility(View.GONE);
+                current = fragmentManager.findFragmentByTag(TAG);
+                if(current != null) {
+                    fragment = current;
+                } else {
+                    fragment = new PlayerFragment();
+                    ((PlayerFragment) fragment).setDeck(mSelectedDeck);
+                    setTitle(mSelectedDeck.getName());
+                }
                 break;
             case MODE_LIST:
-                fab.setVisibility(View.VISIBLE);
-                fragment = new MainActivityFragment();
                 TAG = TAG_LIST;
+                fab.setVisibility(View.VISIBLE);
+                current = fragmentManager.findFragmentByTag(TAG);
+                if(current != null){
+                    fragment = current;
+                } else {
+                    fragment = new MainActivityFragment();
+                    setTitle(getResources().getString(R.string.app_name));
+                }
                 break;
         }
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.fragment_placeholder, fragment, TAG)
-                .commit();
+        if(current != null){
+            //Don't need to do anything
+            Log.d(this.TAG, "Already had a fragment");
+        } else {
+            Log.d(this.TAG, "Swapping fragment");
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragment_placeholder, fragment, TAG)
+                    .commit();
+        }
 
     }
 }

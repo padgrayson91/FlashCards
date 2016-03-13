@@ -1,8 +1,6 @@
 package com.padgrayson91.flashcards;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -145,23 +143,9 @@ public class MainActivityFragment extends Fragment {
     private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            final Deck d = mDecks.get(position);
-            //TODO: Make a custom dialog fragment because this looks awful
+            Deck d = mDecks.get(position);
             if(d.getSize() > 0){
-                new AlertDialog.Builder(getActivity()).setMessage(getResources().getString(R.string.dialog_play_or_edit))
-                        .setPositiveButton(getResources().getString(R.string.dialog_button_play), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ((MainActivity) getActivity()).onDeckSelected(d);
-                            }
-                        })
-                        .setNegativeButton(getResources().getString(R.string.dialog_button_edit), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                startBuilder(d);
-                            }
-                        }).setCancelable(true).show();
-
+                ((MainActivity) getActivity()).onDeckSelected(d);
             } else {
                 startBuilder(d);
             }
@@ -186,12 +170,32 @@ public class MainActivityFragment extends Fragment {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             Log.d(TAG, "Getting view for " + mDecks.get(position).getName());
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             LinearLayout listItem = (LinearLayout) inflater.inflate(R.layout.list_item_deck, parent, false);
             TextView deckNameView = (TextView) listItem.findViewById(R.id.view_deck_name);
             TextView deckSizeView = (TextView) listItem.findViewById(R.id.view_deck_size);
+            LinearLayout viewCardsButton = (LinearLayout) listItem.findViewById(R.id.btn_view_cards);
+            viewCardsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startBuilder(mDecks.get(position));
+                }
+            });
+            LinearLayout playButton = (LinearLayout) listItem.findViewById(R.id.btn_play);
+            playButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Deck d = mDecks.get(position);
+                    if(d.getSize() > 0){
+                        ((MainActivity) getActivity()).onDeckSelected(d);
+                    } else {
+                        Toast.makeText(getContext(), "You need to add cards first!", Toast.LENGTH_SHORT).show();
+                        startBuilder(d);
+                    }
+                }
+            });
             deckNameView.setText(mDecks.get(position).getName());
             deckSizeView.setText(getResources().getQuantityString(R.plurals.card_count, mDecks.get(position).getSize(), mDecks.get(position).getSize()));
             listItem.setBackgroundColor(mDecks.get(position).getColor());

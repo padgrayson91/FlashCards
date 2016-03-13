@@ -97,6 +97,7 @@ public class DeckBuilderActivity extends AppCompatActivity {
             setResult(RESULT_CANCELED);
             finish();
         }
+        setTitle(deckName);
 
         mFloatButton = (FloatingActionButton) findViewById(R.id.fab);
 
