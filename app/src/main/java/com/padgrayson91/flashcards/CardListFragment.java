@@ -53,9 +53,9 @@ public class CardListFragment extends GenericListFragment {
         mEmptyText = (TextView) root.findViewById(R.id.view_empty_text);
         mCardList = (ListView) root.findViewById(R.id.card_list);
         Bundle args = getArguments();
-        Log.d(TAG, "Arguments: " + args + " Context: " + getContext());
-        if(args != null && getContext() != null){
-            mStorage = new Storage(getContext());
+        Log.d(TAG, "Arguments: " + args + " Context: " + getActivity());
+        if(args != null && getActivity() != null){
+            mStorage = new Storage(getActivity());
             String deckName = args.getString(Constants.EXTRA_DECK_NAME, "");
             if(!deckName.equals("")){
                 Log.d(TAG, "Got Deck name!");
@@ -74,6 +74,13 @@ public class CardListFragment extends GenericListFragment {
         mCardList.setOnItemClickListener(mItemClickListener);
         setHasOptionsMenu(true);
         return root;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        mStorage = new Storage(getActivity());
+        mStorage.clearInProgressPlay();
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
