@@ -100,14 +100,12 @@ public class CardBuilderFragment extends Fragment {
     public void onPause() {
         mStorage.storeInProgressQuestion(mQuestionEdit.getText().toString());
         mStorage.storeInProgressAnswer(mAnswerEdit.getText().toString());
+        options = new ArrayList<>();
+        options.add(mOption1Edit.getText().toString());
+        options.add(mOption2Edit.getText().toString());
+        options.add(mOption3Edit.getText().toString());
         mStorage.storeInProgressOptions(options);
         super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.d(TAG, "DESTROYING");
-        super.onDestroy();
     }
 
     public void initFields(){
@@ -161,6 +159,14 @@ public class CardBuilderFragment extends Fragment {
             if(!storage.writeDeckToFile(d)){
                 result = ERROR_WRITE_FAILED;
             } else {
+                question = "";
+                answer = "";
+                options = new ArrayList<>();
+                mQuestionEdit.setText("");
+                mAnswerEdit.setText("");
+                mOption1Edit.setText("");
+                mOption2Edit.setText("");
+                mOption3Edit.setText("");
                 storage.clearInProgressCard();
             }
 
