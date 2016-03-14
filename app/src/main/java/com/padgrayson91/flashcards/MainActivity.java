@@ -62,6 +62,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        mStorage.clearInProgressPlay();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onResume(){
         super.onResume();
         swapFragment(currentMode);

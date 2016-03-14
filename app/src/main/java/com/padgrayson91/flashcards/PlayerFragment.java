@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -92,7 +93,7 @@ public class PlayerFragment extends Fragment {
             Log.d(TAG, "Had saved state, getting info from that");
             String deckName = savedInstanceState.getString(KEY_DECK_NAME, "");
             String cardId = savedInstanceState.getString(KEY_CARD_ID, "");
-            mDeck = mStorage.readDeckFromFile(deckName);
+            setDeck(mStorage.readDeckFromFile(deckName));
             if(mDeck != null){
                 Card current = mDeck.iterateToCard(cardId);
                 if(current != null){
@@ -106,7 +107,7 @@ public class PlayerFragment extends Fragment {
                 Log.d(TAG, "Found a deck saved in storage " + deckName);
                 //We were in progress, so pick up where we left
                 //off
-                mDeck = mStorage.readDeckFromFile(deckName);
+                setDeck(mStorage.readDeckFromFile(deckName));
                 String cardId = mStorage.getInProgressCardId();
                 mCurrentCard = mDeck.iterateToCard(cardId);
                 Log.d(TAG, "Set card to " + mCurrentCard.toString());
@@ -144,13 +145,16 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onPause() {
         Log.d(TAG, "Pausing, writing state to storage");
-        Log.d(TAG, "Card: " + mCurrentCard.toString());
-        Log.d(TAG, "Deck: " + mDeck.getName());
-        mStorage.storeInProgressCardId(mCurrentCard.id);
-        mStorage.storeInProgressDeckName(mDeck.getName());
-        //Save the deck to file so we don't lose card scores
-        Storage storage = new Storage(getActivity());
-        storage.writeDeckToFile(mDeck);
+        if(mCurrentCard != null && mDeck != null) {
+            Log.d(TAG, "Card: " + mCurrentCard.toString());
+            Log.d(TAG, "Deck: " + mDeck.getName());
+            mStorage.storeInProgressCardId(mCurrentCard.id);
+            mStorage.storeInProgressDeckName(mDeck.getName());
+
+            //Save the deck to file so we don't lose card scores
+            Storage storage = new Storage(getActivity());
+            storage.writeDeckToFile(mDeck);
+        }
         super.onPause();
     }
 
@@ -158,8 +162,10 @@ public class PlayerFragment extends Fragment {
         //Update the deck so scores persist
         Storage storage = new Storage(getActivity());
         storage.writeDeckToFile(mDeck);
-        //Remove all of the progress from this play
-        storage.clearInProgressPlay();
+        Log.d(TAG, "Play finished, nulling deck and card");
+        setDeck(null);
+        loadCard(null);
+        mStorage.clearInProgressPlay();
 
         ((MainActivity) getActivity()).onPlayFinished();
     }
@@ -188,14 +194,17 @@ public class PlayerFragment extends Fragment {
 
     /***
      * Loads a card directly into the UI
-     * @param c
+     * @param c the card to load.  If null, UI will not be updated
      */
-    public void loadCard(Card c){
+    public void loadCard(@Nullable Card c){
         //When we load  a new card, we need to reset all the button colors
         for(Button b: mAnswerButtons){
             b.setTextColor(Color.BLACK);
         }
         mCurrentCard = c;
+        if(c == null){
+            return;
+        }
         String question = c.getQuestion();
         mQuestionText.setText(question);
 

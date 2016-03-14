@@ -155,6 +155,7 @@ public class Storage {
     }
 
     protected  void storeInProgressCardId(String id){
+        Log.d(TAG, "Storing card progress");
         SharedPreferences.Editor editor = mPrefs.edit();
         editor.putString(PROPERTY_IN_PROGRESS_CARD_ID, id);
         editor.commit();
@@ -193,6 +194,7 @@ public class Storage {
     }
 
     protected void clearInProgressPlay(){
+        Log.d(TAG, "Clearing play progress");
         SharedPreferences.Editor editor = mPrefs.edit();
         editor.remove(PROPERTY_IN_PROGRESS_CARD_ID);
         editor.remove(PROPERTY_IN_PROGRESS_DECK_NAME);
