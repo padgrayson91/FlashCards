@@ -2,6 +2,7 @@
     <string name="app_name">FlashCards</string>
     <string name="action_settings">Settings</string>
     <string name="action_delete">Delete selection</string>
+    <string name="action_edit">Edit</string>
     <string name="action_merge">Merge selection</string>
     <string name="alert_name_deck">Enter Deck Name:</string>
     <string name="alert_name_accept">OK</string>

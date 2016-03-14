@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,6 +50,7 @@ public class MainActivityFragment extends GenericListFragment {
     private Storage mStorage;
     private DeckListAdapter mDeckAdapter;
     private Menu mMenu;
+    private ActionMode mActionMode;
 
     public MainActivityFragment() {
         mDecks = new ArrayList<Deck>();
@@ -87,12 +89,12 @@ public class MainActivityFragment extends GenericListFragment {
         super.onResume();
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        mMenu = menu;
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_fragment_main, menu);
-    }
+//    @Override
+//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        mMenu = menu;
+//        super.onCreateOptionsMenu(menu, inflater);
+//        inflater.inflate(R.menu.menu_fragment_main, menu);
+//    }
 
     @Override
     public void onDestroyOptionsMenu() {
@@ -100,18 +102,18 @@ public class MainActivityFragment extends GenericListFragment {
         super.onDestroyOptionsMenu();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if(id == R.id.action_delete){
-            promptDeleteDecks();
-            return true;
-        } else if(id == R.id.action_merge){
-            promptCreateDeck(true);
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        int id = item.getItemId();
+//        if(id == R.id.action_delete){
+//            promptDeleteDecks();
+//            return true;
+//        } else if(id == R.id.action_merge){
+//            promptCreateDeck(true);
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     public void promptCreateDeck(final boolean isMerge){
         final Context context = getActivity();
@@ -283,13 +285,6 @@ public class MainActivityFragment extends GenericListFragment {
         }
     };
 
-    private View.OnLongClickListener mLongClickListener = new View.OnLongClickListener() {
-        @Override
-        public boolean onLongClick(View v) {
-            return false;
-        }
-    };
-
     private AdapterView.OnItemLongClickListener mItemLongClickListener = new AdapterView.OnItemLongClickListener() {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -298,7 +293,50 @@ public class MainActivityFragment extends GenericListFragment {
                 selectionCheck.setChecked(true);
 
             showChecks(true);
+            mActionMode = getActivity().startActionMode(mActionModeCallback);
             return true;
+        }
+    };
+
+    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+
+        // Called when the action mode is created; startActionMode() was called
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // Inflate a menu resource providing context menu items
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.menu_context_deck, menu);
+            return true;
+        }
+
+        // Called each time the action mode is shown. Always called after onCreateActionMode, but
+        // may be called multiple times if the mode is invalidated.
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false; // Return false if nothing is done
+        }
+
+        // Called when the user selects a contextual menu item
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_delete:
+                    //TODO
+                    return true;
+                case R.id.action_merge:
+                    //TODO
+                    return true;
+                case R.id.action_edit:
+                    startBuilder(mSelectedDecks.get(0));
+                default:
+                    return false;
+            }
+        }
+
+        // Called when the user exits the action mode
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mActionMode = null;
         }
     };
 
@@ -336,28 +374,6 @@ public class MainActivityFragment extends GenericListFragment {
                 Log.d(TAG, "Unable to cast drawable to gradient drawable");
             }
             TextView deckSizeView = (TextView) listItem.findViewById(R.id.view_deck_size);
-            LinearLayout viewCardsButton = (LinearLayout) listItem.findViewById(R.id.btn_view_cards);
-            viewCardsButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startBuilder(mDecks.get(position));
-                }
-            });
-            viewCardsButton.setOnLongClickListener(mLongClickListener);
-            LinearLayout playButton = (LinearLayout) listItem.findViewById(R.id.btn_play);
-            playButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Deck d = mDecks.get(position);
-                    if (d.getSize() > 0) {
-                        ((MainActivity) getActivity()).onDeckSelected(d);
-                    } else {
-                        Toast.makeText(getContext(), "You need to add cards first!", Toast.LENGTH_SHORT).show();
-                        startBuilder(d);
-                    }
-                }
-            });
-            playButton.setOnLongClickListener(mLongClickListener);
             CheckBox selectionCheck = (CheckBox) listItem.findViewById(R.id.selection_check);
             //NOTE: this isn't thread safe, so may need a lock on mSelectedDecks;
             selectionCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -386,7 +402,11 @@ public class MainActivityFragment extends GenericListFragment {
                     }
                     if(oldSize >= 1 && newSize == 0){
                         mMenu.setGroupVisible(R.id.group_actions_one_or_more, false);
+                        mActionMode.finish();
                         showChecks(false);
+                    }
+                    if(oldSize != 1 && newSize == 1){
+                        mMenu.setGroupVisible(R.id.group_actions_only_one, true);
                     }
                 }
             });
