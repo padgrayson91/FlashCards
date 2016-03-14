@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +25,7 @@ import static com.padgrayson91.flashcards.Constants.SUCCESS;
  * Created by patrickgrayson on 3/10/16.
  */
 public class DeckBuilderActivity extends AppCompatActivity {
+    private static final String TAG = "FlashCards";
 
     private Deck mDeck;
     private Storage mStorage;
@@ -99,6 +101,13 @@ public class DeckBuilderActivity extends AppCompatActivity {
 
         mFloatButton = (FloatingActionButton) findViewById(R.id.fab);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "DESTROYING ACTIVTY");
+        mStorage.clearInProgressCard();
+        super.onDestroy();
     }
 
     @Override

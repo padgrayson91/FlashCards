@@ -32,7 +32,6 @@ import static com.padgrayson91.flashcards.Constants.ACTION_BUILD_DECK;
 import static com.padgrayson91.flashcards.Constants.ERROR_EMPTY_NAME;
 import static com.padgrayson91.flashcards.Constants.ERROR_WRITE_FAILED;
 import static com.padgrayson91.flashcards.Constants.EXTRA_DECK_NAME;
-import static com.padgrayson91.flashcards.Constants.REQUEST_CODE_BUILD_DECK;
 import static com.padgrayson91.flashcards.Constants.SUCCESS;
 
 /**
@@ -277,7 +276,7 @@ public class MainActivityFragment extends GenericListFragment {
         Bundle extras = new Bundle();
         extras.putString(EXTRA_DECK_NAME, d.getName());
         deckBuilderIntent.putExtras(extras);
-        startActivityForResult(deckBuilderIntent, REQUEST_CODE_BUILD_DECK);
+        startActivity(deckBuilderIntent);
     }
 
     protected void showChecks(boolean show){
@@ -285,6 +284,9 @@ public class MainActivityFragment extends GenericListFragment {
         for(int i = 0; i < mDeckAdapter.getCount(); i++){
             View v = getViewByPosition(i, mDeckList);
             LinearLayout selectionLayout = (LinearLayout) v.findViewById(R.id.checkbox_layout);
+            if(selectionLayout == null){
+                return;
+            }
             if(show) {
                 selectionLayout.setVisibility(View.VISIBLE);
             } else {
@@ -297,6 +299,9 @@ public class MainActivityFragment extends GenericListFragment {
     private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if(mActionMode != null){
+                mActionMode.finish();
+            }
             Deck d = mDecks.get(position);
             if(d.getSize() > 0){
                 ((MainActivity) getActivity()).onDeckSelected(d);
@@ -356,6 +361,7 @@ public class MainActivityFragment extends GenericListFragment {
         public void onDestroyActionMode(ActionMode mode) {
             isActionMode = false;
             mActionMode = null;
+            showChecks(false);
         }
     };
 

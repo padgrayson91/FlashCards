@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,6 +37,11 @@ public class Storage {
     private static final String PROPERTY_DECKS = "decks_info";
     private static final String PROPERTY_CARD_SORT = "pref_sort_cards";
     private static final String PROPERTY_DECK_SORT = "pref_sort_decks";
+    private static final String PROPERTY_IN_PROGRESS_QUESTION = "in_progress_question";
+    private static final String PROPERTY_IN_PROGRESS_ANSWER = "in_progress_answer";
+    private static final String PROPERTY_IN_PROGRESS_OPTION_1 ="in_progress_option_1";
+    private static final String PROPERTY_IN_PROGRESS_OPTION_2 ="in_progress_option_2";
+    private static final String PROPERTY_IN_PROGRESS_OPTION_3 ="in_progress_option_3";
 
 
     public Storage(Context context){
@@ -64,6 +70,22 @@ public class Storage {
         } catch (NumberFormatException ex) {
             return 1;
         }
+    }
+
+    protected String getInProgressQuestion(){
+        return mPrefs.getString(PROPERTY_IN_PROGRESS_QUESTION, "");
+    }
+
+    protected String getInProgressAnswer(){
+        return mPrefs.getString(PROPERTY_IN_PROGRESS_ANSWER, "");
+    }
+
+    protected ArrayList<String> getInPorgressOptions(){
+        ArrayList<String> options = new ArrayList<>();
+        options.add(mPrefs.getString(PROPERTY_IN_PROGRESS_OPTION_1, ""));
+        options.add(mPrefs.getString(PROPERTY_IN_PROGRESS_OPTION_2, ""));
+        options.add(mPrefs.getString(PROPERTY_IN_PROGRESS_OPTION_3, ""));
+        return options;
     }
 
 
@@ -108,6 +130,44 @@ public class Storage {
         editor.commit();
         Log.d(TAG, "committed");
         return SUCCESS;
+    }
+
+    protected void storeInProgressQuestion(String question){
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putString(PROPERTY_IN_PROGRESS_QUESTION, question);
+        editor.commit();
+    }
+
+    protected  void storeInProgressAnswer(String answer){
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putString(PROPERTY_IN_PROGRESS_ANSWER, answer);
+        editor.commit();
+    }
+
+    /***
+     * Expects an ArrayList with exactly 3 options
+     * @param options
+     */
+    protected void storeInProgressOptions(ArrayList<String> options){
+        SharedPreferences.Editor editor = mPrefs.edit();
+        try {
+            editor.putString(PROPERTY_IN_PROGRESS_OPTION_1, options.get(0));
+            editor.putString(PROPERTY_IN_PROGRESS_OPTION_2, options.get(1));
+            editor.putString(PROPERTY_IN_PROGRESS_OPTION_3, options.get(2));
+        } catch (IndexOutOfBoundsException ex){
+            //Only need to add the options we actually set
+        }
+        editor.commit();
+    }
+
+    protected void clearInProgressCard(){
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.remove(PROPERTY_IN_PROGRESS_QUESTION);
+        editor.remove(PROPERTY_IN_PROGRESS_ANSWER);
+        editor.remove(PROPERTY_IN_PROGRESS_OPTION_1);
+        editor.remove(PROPERTY_IN_PROGRESS_OPTION_2);
+        editor.remove(PROPERTY_IN_PROGRESS_OPTION_3);
+        editor.commit();
     }
 
     protected void removeDeck(String deckName){
