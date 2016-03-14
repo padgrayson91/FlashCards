@@ -7,7 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import static com.padgrayson91.flashcards.Constants.ERROR_NO_ID;
@@ -24,9 +24,9 @@ public class Deck implements Comparable {
     private static final String TAG = "FlashCards";
 
     private JSONObject mJson;
-    private HashMap<String, Card> cards;
+    private ArrayList<Card> cards;
     private String name;
-    private Iterator<String> mCardIterator;
+    private Iterator<Card> mCardIterator;
 
     public static final int SORT_MODE_SCORE = 0;
     public static final int SORT_MODE_ALPHA = 1;
@@ -38,8 +38,8 @@ public class Deck implements Comparable {
 
     public Deck(String name){
         mJson = new JSONObject();
-        cards = new HashMap<String, Card>();
-        mCardIterator = cards.keySet().iterator();
+        cards = new ArrayList<>();
+        mCardIterator = cards.iterator();
         this.name = name;
         try {
             mJson.put(KEY_NAME, name);
@@ -58,21 +58,21 @@ public class Deck implements Comparable {
                 //If we get here something weird is going on
                 Log.d(TAG, "Deck had no name??");
             }
-            cards = new HashMap<String, Card>();
+            cards = new ArrayList<>();
             if (mJson.has(KEY_CARDS)){
                 JSONArray cardsArray = mJson.getJSONArray(KEY_CARDS);
                 for(int i = 0; i < cardsArray.length(); i++){
                     JSONObject jobj = cardsArray.getJSONObject(i);
                     String id = jobj.getString(KEY_ID);
                     Card card = new Card(jobj.getJSONObject(KEY_CARD_CONTENTS), id);
-                    cards.put(id, card);
+                    cards.add(card);
                 }
             }
 
         } catch (JSONException ex) {
             //Should never get here
         }
-        mCardIterator = cards.keySet().iterator();
+        mCardIterator = cards.iterator();
 
     }
 
@@ -106,12 +106,12 @@ public class Deck implements Comparable {
 
     public int getScore(){
         int totalScore = 0;
-        for(String s: cards.keySet()){
-            totalScore += cards.get(s).getScore();
+        for(Card c: cards){
+            totalScore += c.getScore();
 
 
         }
-        totalScore = totalScore/(Math.max(1, cards.keySet().size()));
+        totalScore = totalScore/(Math.max(1, cards.size()));
         return totalScore;
     }
 
@@ -142,7 +142,7 @@ public class Deck implements Comparable {
         return color;
     }
 
-    public HashMap<String, Card> getCards(){
+    public ArrayList<Card> getCards(){
         return cards;
     }
 
@@ -151,41 +151,46 @@ public class Deck implements Comparable {
             return ERROR_NO_ID;
         } else {
             //TODO: should check if card already exists with that ID
-            cards.put(c.id, c);
+            cards.add(c);
 
             return SUCCESS;
         }
     }
 
     public Card getCard(String id){
-        return cards.get(id);
+        int index = cards.indexOf(id);
+        if(index >= 0) {
+            return cards.get(index);
+        } else {
+            return null;
+        }
     }
 
     public int removeCard(Card c){
         if(c.id == null || c.id.equals("")){
             return ERROR_NO_ID;
         } else {
-            cards.remove(c.id);
+            cards.remove(c);
             return SUCCESS;
         }
     }
 
     public int updateCard(Card c){
-        if(c.id == null || !cards.keySet().contains(c.id)){
+        if(c.id == null || !cards.contains(c)){
             return ERROR_NO_ID;
         } else {
-            cards.put(c.id, c);
+            cards.set(cards.indexOf(c), c);
             return SUCCESS;
         }
     }
 
     public Card iterateToCard(String id){
-        mCardIterator = cards.keySet().iterator();
+        mCardIterator = cards.iterator();
         Card requested = null;
         while(mCardIterator.hasNext()){
-            String nextId = mCardIterator.next();
-            if(nextId.equals(id)){
-                requested = cards.get(nextId);
+            Card nextCard = mCardIterator.next();
+            if(nextCard.id.equals(id)){
+                requested = nextCard;
                 break;
             }
         }
@@ -195,7 +200,7 @@ public class Deck implements Comparable {
     public Card getNextCard(){
         //TODO: More interesting method of getting cards
         if(mCardIterator.hasNext()) {
-            return cards.get(mCardIterator.next());
+            return mCardIterator.next();
         }
         else {
             return null;
@@ -203,16 +208,16 @@ public class Deck implements Comparable {
     }
 
     public void reset(){
-        mCardIterator = cards.keySet().iterator();
+        mCardIterator = cards.iterator();
     }
 
     protected JSONObject getJson(){
         JSONArray cards = new JSONArray();
         try {
-            for (String s : this.cards.keySet()) {
+            for (Card c : this.cards) {
                 JSONObject outerCard = new JSONObject();
-                outerCard.put(KEY_ID, s);
-                JSONObject cardContents = this.cards.get(s).toJSON();
+                outerCard.put(KEY_ID, c.id);
+                JSONObject cardContents = c.toJSON();
                 outerCard.put(KEY_CARD_CONTENTS, cardContents);
                 cards.put(outerCard);
             }

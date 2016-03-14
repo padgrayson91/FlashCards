@@ -33,6 +33,8 @@ public class PlayerFragment extends Fragment {
     private TextView mQuestionText;
     private ArrayList<Button> mAnswerButtons;
 
+    private Storage mStorage;
+
     public PlayerFragment(){
         mAnswerButtons = new ArrayList<Button>();
         Log.d(TAG, "Player fragment initialized!");
@@ -48,6 +50,7 @@ public class PlayerFragment extends Fragment {
         mAnswerButtons.add((Button) root.findViewById(R.id.answer_button_2));
         mAnswerButtons.add((Button) root.findViewById(R.id.answer_button_3));
         mAnswerButtons.add((Button) root.findViewById(R.id.answer_button_4));
+        mStorage = new Storage(getActivity());
 
         for(Button b: mAnswerButtons){
             b.setOnClickListener(new View.OnClickListener() {
@@ -83,16 +86,30 @@ public class PlayerFragment extends Fragment {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        Log.d(TAG, "Activity Created!");
+        mStorage = new Storage(getActivity());
         if(savedInstanceState != null){
+            Log.d(TAG, "Had saved state, getting info from that");
             String deckName = savedInstanceState.getString(KEY_DECK_NAME, "");
             String cardId = savedInstanceState.getString(KEY_CARD_ID, "");
-            Storage storage = new Storage(getActivity());
-            mDeck = storage.readDeckFromFile(deckName);
+            mDeck = mStorage.readDeckFromFile(deckName);
             if(mDeck != null){
                 Card current = mDeck.iterateToCard(cardId);
                 if(current != null){
                     loadCard(current);
                 }
+            }
+        } else {
+            Log.d(TAG, "No saved state, pulling from storage");
+            String deckName = mStorage.getInProgressDeck();
+            if(!"".equals(deckName)) {
+                Log.d(TAG, "Found a deck saved in storage " + deckName);
+                //We were in progress, so pick up where we left
+                //off
+                mDeck = mStorage.readDeckFromFile(deckName);
+                String cardId = mStorage.getInProgressCardId();
+                mCurrentCard = mDeck.iterateToCard(cardId);
+                Log.d(TAG, "Set card to " + mCurrentCard.toString());
             }
         }
 
@@ -111,6 +128,7 @@ public class PlayerFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "Saving state");
         if(mCurrentCard != null){
             outState.putString(KEY_CARD_ID, mCurrentCard.id);
         }
@@ -123,10 +141,25 @@ public class PlayerFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onPause() {
+        Log.d(TAG, "Pausing, writing state to storage");
+        Log.d(TAG, "Card: " + mCurrentCard.toString());
+        Log.d(TAG, "Deck: " + mDeck.getName());
+        mStorage.storeInProgressCardId(mCurrentCard.id);
+        mStorage.storeInProgressDeckName(mDeck.getName());
+        //Save the deck to file so we don't lose card scores
+        Storage storage = new Storage(getActivity());
+        storage.writeDeckToFile(mDeck);
+        super.onPause();
+    }
+
     public void playFinished(){
         //Update the deck so scores persist
         Storage storage = new Storage(getActivity());
         storage.writeDeckToFile(mDeck);
+        //Remove all of the progress from this play
+        storage.clearInProgressPlay();
 
         ((MainActivity) getActivity()).onPlayFinished();
     }

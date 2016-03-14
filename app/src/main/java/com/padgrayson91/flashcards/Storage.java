@@ -42,6 +42,8 @@ public class Storage {
     private static final String PROPERTY_IN_PROGRESS_OPTION_1 ="in_progress_option_1";
     private static final String PROPERTY_IN_PROGRESS_OPTION_2 ="in_progress_option_2";
     private static final String PROPERTY_IN_PROGRESS_OPTION_3 ="in_progress_option_3";
+    private static final String PROPERTY_IN_PROGRESS_DECK_NAME = "in_progress_deck";
+    private static final String PROPERTY_IN_PROGRESS_CARD_ID = "in_progress_card";
 
 
     public Storage(Context context){
@@ -86,6 +88,14 @@ public class Storage {
         options.add(mPrefs.getString(PROPERTY_IN_PROGRESS_OPTION_2, ""));
         options.add(mPrefs.getString(PROPERTY_IN_PROGRESS_OPTION_3, ""));
         return options;
+    }
+
+    protected String getInProgressDeck(){
+        return mPrefs.getString(PROPERTY_IN_PROGRESS_DECK_NAME, "");
+    }
+
+    protected String getInProgressCardId(){
+        return mPrefs.getString(PROPERTY_IN_PROGRESS_CARD_ID, "");
     }
 
 
@@ -144,6 +154,18 @@ public class Storage {
         editor.commit();
     }
 
+    protected  void storeInProgressCardId(String id){
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putString(PROPERTY_IN_PROGRESS_CARD_ID, id);
+        editor.commit();
+    }
+
+    protected void storeInProgressDeckName(String name){
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putString(PROPERTY_IN_PROGRESS_DECK_NAME, name);
+        editor.commit();
+    }
+
     /***
      * Expects an ArrayList with exactly 3 options
      * @param options
@@ -167,6 +189,13 @@ public class Storage {
         editor.remove(PROPERTY_IN_PROGRESS_OPTION_1);
         editor.remove(PROPERTY_IN_PROGRESS_OPTION_2);
         editor.remove(PROPERTY_IN_PROGRESS_OPTION_3);
+        editor.commit();
+    }
+
+    protected void clearInProgressPlay(){
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.remove(PROPERTY_IN_PROGRESS_CARD_ID);
+        editor.remove(PROPERTY_IN_PROGRESS_DECK_NAME);
         editor.commit();
     }
 

@@ -428,6 +428,7 @@ public class MainActivityFragment extends GenericListFragment {
                     }
                     int newSize = mSelectedDecks.size();
                     if(newSize >= 2){
+                        Log.d(TAG, "Two items are checked");
                         mMenu.setGroupVisible(R.id.group_actions_two_or_more, true);
                     }
                     if(newSize >= 1){
@@ -435,7 +436,6 @@ public class MainActivityFragment extends GenericListFragment {
                         mMenu.setGroupVisible(R.id.group_actions_one_or_more, true);
                     }
                     if(newSize <= 1){
-                        Log.d(TAG, "Two items are checked");
                         mMenu.setGroupVisible(R.id.group_actions_two_or_more, false);
                     }
                     if(newSize == 0){

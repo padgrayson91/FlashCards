@@ -24,7 +24,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 
 /**
  * Created by patrickgrayson on 3/10/16.
@@ -134,10 +133,7 @@ public class CardListFragment extends GenericListFragment {
     public void setDeck(Deck d){
         mDeck = d;
         mCards = new ArrayList<Card>();
-        HashMap<String, Card> temp = d.getCards();
-        for(String s: temp.keySet()){
-            mCards.add(temp.get(s));
-        }
+        mCards = d.getCards();
         sortCards();
         if(mCardAdapter != null){
             mCardAdapter.notifyDataSetChanged();
