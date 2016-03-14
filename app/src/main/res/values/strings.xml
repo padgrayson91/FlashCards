@@ -18,6 +18,10 @@
     <string name="score_text">Score: %d</string>
     <string name="button_text_play"></string>
     <string name="button_text_view_cards"></string>
+    <plurals name="alert_delete_card">
+        <item quantity="one">%d card will be deleted. Proceed?</item>
+        <item quantity="other">%d cards will be deleted. Proceed?</item>
+    </plurals>
     <plurals name="alert_delete_deck">
         <item quantity="one">%d deck will be deleted. Proceed?</item>
         <item quantity="other">%d decks will be deleted. Proceed?</item>

@@ -1,10 +1,11 @@
 package com.padgrayson91.flashcards;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -27,18 +29,22 @@ import java.util.HashMap;
 /**
  * Created by patrickgrayson on 3/10/16.
  */
-public class CardListFragment extends Fragment {
+public class CardListFragment extends GenericListFragment {
     private static final String TAG = "FlashCards";
 
     private ArrayList<Card> mCards;
+    private ArrayList<Card> mSelectedCards;
     private Deck mDeck;
     private ListView mCardList;
     private CardListAdapter mCardAdapter;
     private TextView mEmptyText;
     private Storage mStorage;
 
+    private Menu mMenu;
+
     public CardListFragment(){
         mCards = new ArrayList<Card>();
+        mSelectedCards = new ArrayList<>();
     }
 
 
@@ -73,16 +79,21 @@ public class CardListFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //TODO: should only show delete option when a card is selected
+        mMenu = menu;
         inflater.inflate(R.menu.menu_fragment_card_list, menu);
+    }
+
+    @Override
+    public void onDestroyOptionsMenu() {
+        mMenu = null;
+        super.onDestroyOptionsMenu();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_delete){
-            //TODO: confirmation dialog
-            deleteSelectedCards();
+            promptDeleteCards();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -90,14 +101,34 @@ public class CardListFragment extends Fragment {
     }
 
     public void deleteSelectedCards(){
-        for(int i = 0; i < mCards.size(); i++){
-            boolean selected = ((CheckBox) mCardList.getChildAt(i).findViewById(R.id.selection_check)).isChecked();
-            if(selected){
-                mDeck.removeCard(mCards.get(i));
-            }
+        for(Card c: mSelectedCards){
+            mDeck.removeCard(c);
         }
         Toast.makeText(getActivity(), "Cards deleted", Toast.LENGTH_SHORT).show();
+        mSelectedCards = new ArrayList<>();
+        mStorage.writeDeckToFile(mDeck);
         setDeck(mDeck);
+    }
+
+    public void promptDeleteCards(){
+        Context context = getActivity();
+        if(context == null){
+            return;
+        }
+        String promptText = getResources().getQuantityString(R.plurals.alert_delete_card, mSelectedCards.size(), mSelectedCards.size());
+        new AlertDialog.Builder(context).setCancelable(true)
+                .setMessage(promptText)
+                .setPositiveButton(getResources().getString(R.string.alert_yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteSelectedCards();
+                    }
+                }).setNegativeButton(getResources().getString(R.string.alert_name_cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        }).show();
     }
 
     public void setDeck(Deck d){
@@ -111,6 +142,10 @@ public class CardListFragment extends Fragment {
         if(mCardAdapter != null){
             mCardAdapter.notifyDataSetChanged();
         }
+    }
+
+    protected void showChecks(boolean show){
+        //TODO: need to update layout so checks can be hidden
     }
 
     private void sortCards(){
@@ -152,7 +187,7 @@ public class CardListFragment extends Fragment {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             LinearLayout listItem = (LinearLayout) inflater.inflate(R.layout.list_item_card, parent, false);
             TextView cardQuestionView = (TextView) listItem.findViewById(R.id.view_card_question);
@@ -162,6 +197,31 @@ public class CardListFragment extends Fragment {
             String scoreText = String.format(getResources().getString(R.string.score_text), score);
             cardScoreView.setText(scoreText);
             listItem.setBackgroundColor(mCards.get(position).getColor());
+            CheckBox selectionCheck = (CheckBox) listItem.findViewById(R.id.selection_check);
+            selectionCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    Card c = mCards.get(position);
+                    int oldSize = mSelectedCards.size();
+                    if(isChecked){
+                        if(!mSelectedCards.contains(c)){
+                            mSelectedCards.add(c);
+                        }
+                    } else {
+                        if(mSelectedCards.contains(c)){
+                            mSelectedCards.remove(c);
+                        }
+                    }
+                    int newSize = mSelectedCards.size();
+                    if(oldSize == 0 && newSize >= 1){
+                        mMenu.setGroupVisible(R.id.group_actions_one_or_more, true);
+                    }
+                    if(oldSize >= 1 && newSize == 0){
+                        mMenu.setGroupVisible(R.id.group_actions_one_or_more, false);
+                        showChecks(false);
+                    }
+                }
+            });
 
             return listItem;
 

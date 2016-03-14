@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,7 +25,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Formatter;
 import java.util.Set;
 
 import static com.padgrayson91.flashcards.Constants.ACTION_BUILD_DECK;
@@ -41,7 +39,7 @@ import static com.padgrayson91.flashcards.Constants.SUCCESS;
  */
 
 //TODO: Search decks
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends GenericListFragment {
     private static final String TAG = "FlashCards";
 
     private ArrayList<Deck> mDecks;
@@ -165,7 +163,6 @@ public class MainActivityFragment extends Fragment {
         if(context == null){
             return;
         }
-        Formatter formatter = new Formatter();
         String promptText = getResources().getQuantityString(R.plurals.alert_delete_deck, mSelectedDecks.size(), mSelectedDecks.size());
         new AlertDialog.Builder(context).setCancelable(true)
                 .setMessage(promptText)
@@ -261,7 +258,7 @@ public class MainActivityFragment extends Fragment {
         startActivityForResult(deckBuilderIntent, REQUEST_CODE_BUILD_DECK);
     }
 
-    private void showChecks(boolean show){
+    protected void showChecks(boolean show){
         for(int i = 0; i < mDeckAdapter.getCount(); i++){
             View v = getViewByPosition(i, mDeckList);
             LinearLayout selectionLayout = (LinearLayout) v.findViewById(R.id.checkbox_layout);
@@ -400,19 +397,6 @@ public class MainActivityFragment extends Fragment {
 
             return listItem;
 
-        }
-    }
-
-    //http://stackoverflow.com/questions/24811536/android-listview-get-item-view-by-position
-    public View getViewByPosition(int pos, ListView listView) {
-        final int firstListItemPosition = listView.getFirstVisiblePosition();
-        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
-
-        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
-            return listView.getAdapter().getView(pos, null, listView);
-        } else {
-            final int childIndex = pos - firstListItemPosition;
-            return listView.getChildAt(childIndex);
         }
     }
 }
