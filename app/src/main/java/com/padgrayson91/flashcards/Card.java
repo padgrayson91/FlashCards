@@ -33,7 +33,7 @@ public class Card implements Comparable{
 
     private static final int MIN_R = 50;
     private static final int MIN_G = 50;
-    private static final int MIN_B = 50;
+    private static final int MIN_B = 80;
 
     public static final int SORT_MODE_SCORE = 0;
     public static final int SORT_MODE_ALPHA = 1;
@@ -176,9 +176,9 @@ public class Card implements Comparable{
         int score = getScore();
 
         if(score > 0){
-            return Color.argb(255, Math.max(255 - 10*score, MIN_R), 255, Math.max(255 - 10*score, MIN_B));
+            return Color.argb(255, Math.max(255 - 10*score, MIN_R), 255, Math.max(255 - 7*score, MIN_B));
         } else {
-            return Color.argb(255, 255, Math.max(255 + 10*score, MIN_G), Math.max(255 + 10*score, MIN_B));
+            return Color.argb(255, 255, Math.max(255 + 10*score, MIN_G), Math.max(255 + 7*score, MIN_B));
         }
     }
 

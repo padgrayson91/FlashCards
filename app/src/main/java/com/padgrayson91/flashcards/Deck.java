@@ -32,9 +32,10 @@ public class Deck implements Comparable {
     public static final int SORT_MODE_ALPHA = 1;
     private static int SORT_MODE;
 
+    private static final int ALPHA = 200;
     private static final int MIN_R = 50;
     private static final int MIN_G = 50;
-    private static final int MIN_B = 50;
+    private static final int MIN_B = 80;
 
     public Deck(String name){
         mJson = new JSONObject();
@@ -118,9 +119,9 @@ public class Deck implements Comparable {
     public int getColor(){
         int totalScore = getScore();
         if(totalScore > 0){
-            return Color.argb(255, Math.max(255 - 10*totalScore, MIN_R), 255, Math.max(255 - 10*totalScore, MIN_B));
+            return Color.argb(ALPHA, Math.max(255 - 10*totalScore, MIN_R), 255, Math.max(255 - 7*totalScore, MIN_B));
         } else {
-            return Color.argb(255, 255, Math.max(255 + 10*totalScore, MIN_G), Math.max(255 + 10*totalScore, MIN_B));
+            return Color.argb(ALPHA, 255, Math.max(255 + 10*totalScore, MIN_G), Math.max(255 + 7*totalScore, MIN_B));
         }
     }
 
