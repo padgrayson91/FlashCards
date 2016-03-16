@@ -4,6 +4,7 @@
     <string name="action_delete">Delete selection</string>
     <string name="action_edit">Edit</string>
     <string name="action_merge">Merge selection</string>
+    <string name="action_view">View</string>
     <string name="alert_merge_deck">Selected decks will be merged.  Enter new deck name:</string>
     <string name="alert_name_deck">Enter deck name:</string>
     <string name="alert_name_accept">OK</string>

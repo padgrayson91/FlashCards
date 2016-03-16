@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 MainActivityFragment maf = (MainActivityFragment) getSupportFragmentManager().findFragmentByTag(TAG_LIST);
                 if(maf != null){
-                    maf.promptCreateDeck(false);
+                    maf.promptCreateDeck(MainActivityFragment.CREATE_MODE_NEW);
                 } else {
                     Log.d(TAG, "Deck List fragment was null");
                 }

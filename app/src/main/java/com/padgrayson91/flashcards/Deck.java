@@ -26,6 +26,7 @@ public class Deck implements Comparable {
     private JSONObject mJson;
     private ArrayList<Card> cards;
     private String name;
+    private long lastPlayed;
     private Iterator<Card> mCardIterator;
 
     public static final int SORT_MODE_SCORE = 0;
@@ -69,6 +70,7 @@ public class Deck implements Comparable {
                     cards.add(card);
                 }
             }
+
 
         } catch (JSONException ex) {
             //Should never get here
@@ -156,6 +158,16 @@ public class Deck implements Comparable {
 
             return SUCCESS;
         }
+    }
+
+    public int addCards(ArrayList<Card> toAdd){
+        for(Card c: toAdd){
+            int result = addCard(c);
+            if(result != SUCCESS){
+                return result;
+            }
+        }
+        return SUCCESS;
     }
 
     public Card getCard(String id){

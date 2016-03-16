@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 
+import static com.padgrayson91.flashcards.Constants.*;
 import static com.padgrayson91.flashcards.Constants.ACTION_BUILD_DECK;
 import static com.padgrayson91.flashcards.Constants.ERROR_EMPTY_NAME;
 import static com.padgrayson91.flashcards.Constants.ERROR_WRITE_FAILED;
@@ -50,6 +51,11 @@ public class MainActivityFragment extends GenericListFragment {
     private DeckListAdapter mDeckAdapter;
     private Menu mMenu;
     private ActionMode mActionMode;
+
+    //Deck creation modes
+    public static final int CREATE_MODE_NEW = 0;
+    public static final int CREATE_MODE_MERGE = 1;
+    public static final int CREATE_MODE_RENAME = 2;
 
     private static final String KEY_SHOW_CHECKS = "show_checks";
     private static final String KEY_SELECTED_DECKS = "selected_decks";
@@ -128,18 +134,19 @@ public class MainActivityFragment extends GenericListFragment {
         super.onSaveInstanceState(outState);
     }
 
-    public void promptCreateDeck(final boolean isMerge){
+    public void promptCreateDeck(final int mode){
         final Context context = getActivity();
         if(context == null){
             return;
         }
+        final boolean overwrite = (mode == CREATE_MODE_MERGE);
         final EditText input = new EditText(context);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         input.setLayoutParams(lp);
         String promptText = getResources().getString(R.string.alert_name_deck);
-        if(isMerge){
+        if(mode == CREATE_MODE_MERGE){
             promptText = getResources().getString(R.string.alert_merge_deck);
         }
         AlertDialog alertDialog = new AlertDialog.Builder(context)
@@ -150,8 +157,11 @@ public class MainActivityFragment extends GenericListFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         Storage storage = new Storage(context);
                         String deckName = input.getText().toString();
-                        int result = storage.storeDeck(deckName, isMerge);
+                        int result = storage.storeDeck(deckName, overwrite);
                         switch (result) {
+                            case ERROR_DUPLICATE_NAME:
+                                Toast.makeText(context, "A deck with that name already exists!", Toast.LENGTH_LONG).show();
+                                break;
                             case ERROR_EMPTY_NAME:
                                 Toast.makeText(context, "You must give your deck a name!", Toast.LENGTH_LONG).show();
                                 break;
@@ -159,9 +169,12 @@ public class MainActivityFragment extends GenericListFragment {
                                 Toast.makeText(context, "Oops, somethings went wrong!", Toast.LENGTH_LONG).show();
                                 break;
                             case SUCCESS:
-                                if (isMerge) {
+                                if (mode == CREATE_MODE_MERGE) {
                                     mergeSelectedDecks(deckName);
                                     Toast.makeText(context, "Decks merged!", Toast.LENGTH_SHORT).show();
+                                } else if (mode == CREATE_MODE_RENAME) {
+                                    renameSelectedDeck(deckName);
+                                    Toast.makeText(context, "Deck renamed!", Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(context, "Deck created!", Toast.LENGTH_SHORT).show();
                                 }
@@ -228,6 +241,20 @@ public class MainActivityFragment extends GenericListFragment {
         mSelectedDecks = new ArrayList<>();
         mActionMode.finish();
         showChecks(false);
+    }
+
+    public void renameSelectedDeck(String newName){
+        if(mSelectedDecks.size() < 1)
+            return;
+        Deck d = mSelectedDecks.get(0);
+        mStorage.removeDeck(d.getName());
+        d.rename(newName);
+        mStorage.writeDeckToFile(d);
+        //clear the list of selected decks
+        mSelectedDecks = new ArrayList<>();
+        mActionMode.finish();
+        showChecks(false);
+
     }
 
     public void updateDecks(){
@@ -348,10 +375,14 @@ public class MainActivityFragment extends GenericListFragment {
                     promptDeleteDecks();
                     return true;
                 case R.id.action_merge:
-                    promptCreateDeck(true);
+                    promptCreateDeck(CREATE_MODE_MERGE);
                     return true;
                 case R.id.action_edit:
+                    promptCreateDeck(CREATE_MODE_RENAME);
+                    return true;
+                case R.id.action_view:
                     startBuilder(mSelectedDecks.get(0));
+                    return true;
                 default:
                     return false;
             }

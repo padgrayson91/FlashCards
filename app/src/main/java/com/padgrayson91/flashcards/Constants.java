@@ -28,6 +28,7 @@ public class Constants {
     //Deck JSON keys
     public static final String KEY_NAME = "deck_name";
     public static final String KEY_CARDS = "deck_cards";
+    public static final String KEY_LAST_PLAYED = "last_played";
 
     //FLASHCARD_TYPE_CONSTANTS
     public static final int CARD_TYPE_MULTIPLE_CHOICE = 101;
