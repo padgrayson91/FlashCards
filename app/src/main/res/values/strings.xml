@@ -21,6 +21,11 @@
     <string name="score_text">Score: %d</string>
     <string name="button_text_play"></string>
     <string name="button_text_view_cards"></string>
+    <string name="deck_time_new">new!</string>
+    <string name="deck_time_overflow">10+ d</string>
+    <string name="deck_time_days">%d d</string>
+    <string name="deck_time_hours">%d h</string>
+    <string name="deck_time_minutes">%d m</string>
     <plurals name="alert_delete_card">
         <item quantity="one">%d card will be deleted. Proceed?</item>
         <item quantity="other">%d cards will be deleted. Proceed?</item>

@@ -421,24 +421,31 @@ public class MainActivityFragment extends GenericListFragment {
             LinearLayout listItem = (LinearLayout) inflater.inflate(R.layout.list_item_deck, parent, false);
             TextView deckNameView = (TextView) listItem.findViewById(R.id.view_deck_name);
             TextView lastPlayedView = (TextView) listItem.findViewById(R.id.last_played_text);
+            String timeGapText = "";
             if(!(rowDeck.getLastPlayed() == Deck.NEVER_PLAYED)){
-                String timeGapText = "";
                 long timeGapMs = System.currentTimeMillis() - rowDeck.getLastPlayed();
                 //Only display the largest time unit
                 long days = TimeUnit.MILLISECONDS.toDays(timeGapMs);
                 long hours = TimeUnit.MILLISECONDS.toHours(timeGapMs);
                 long minutes = TimeUnit.MILLISECONDS.toMinutes(timeGapMs);
                 if(days > 0){
-                    timeGapText = timeGapText + days + " d";
+                    if(days > 10){
+                        //don't want to be telling people it's been 1297391 days since they played :P
+                        timeGapText = getResources().getString(R.string.deck_time_overflow);
+                    } else {
+                        timeGapText = String.format(getResources().getString(R.string.deck_time_days), days);
+                    }
                 } else if(hours > 0){
-                    timeGapText = timeGapText + hours + " h";
+                    timeGapText = String.format(getResources().getString(R.string.deck_time_hours), hours);
                 } else {
                     //Don't care if it's 0 minutes, not going higher resolution than this
-                    timeGapText = timeGapText + minutes + " m";
+                    timeGapText = String.format(getResources().getString(R.string.deck_time_minutes), minutes);
                 }
-                lastPlayedView.setText(timeGapText);
 
+            } else {
+                timeGapText = getResources().getString(R.string.deck_time_new);
             }
+            lastPlayedView.setText(timeGapText);
 
             try {
                 GradientDrawable lastPlayedBg = (GradientDrawable) getResources().getDrawable(R.drawable.time_indicator_bubble);
