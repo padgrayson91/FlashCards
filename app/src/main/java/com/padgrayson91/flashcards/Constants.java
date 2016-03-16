@@ -29,6 +29,9 @@ public class Constants {
     public static final String KEY_NAME = "deck_name";
     public static final String KEY_CARDS = "deck_cards";
     public static final String KEY_LAST_PLAYED = "last_played";
+    public static final String KEY_OWNER = "owner";
+    public static final String KEY_CREATED_AT = "created_at";
+    public static final String KEY_IS_PUBLIC = "is_public";
 
     //FLASHCARD_TYPE_CONSTANTS
     public static final int CARD_TYPE_MULTIPLE_CHOICE = 101;
@@ -41,8 +44,5 @@ public class Constants {
     //Bundle extras
     public static final String EXTRA_DECK_NAME = "deck_name";
     public static final String EXTRA_CARD_ID = "card_id";
-
-    //Request codes
-    public static final int REQUEST_CODE_BUILD_DECK = 1001;
 
 }

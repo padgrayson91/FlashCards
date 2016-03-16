@@ -27,9 +27,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import static com.padgrayson91.flashcards.Constants.*;
 import static com.padgrayson91.flashcards.Constants.ACTION_BUILD_DECK;
+import static com.padgrayson91.flashcards.Constants.ERROR_DUPLICATE_NAME;
 import static com.padgrayson91.flashcards.Constants.ERROR_EMPTY_NAME;
 import static com.padgrayson91.flashcards.Constants.ERROR_WRITE_FAILED;
 import static com.padgrayson91.flashcards.Constants.EXTRA_DECK_NAME;
@@ -415,15 +416,33 @@ public class MainActivityFragment extends GenericListFragment {
 
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
-            Log.d(TAG, "Getting view for " + mDecks.get(position).getName());
+            final Deck rowDeck = mDecks.get(position);
             LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             LinearLayout listItem = (LinearLayout) inflater.inflate(R.layout.list_item_deck, parent, false);
             TextView deckNameView = (TextView) listItem.findViewById(R.id.view_deck_name);
             TextView lastPlayedView = (TextView) listItem.findViewById(R.id.last_played_text);
+            if(!(rowDeck.getLastPlayed() == Deck.NEVER_PLAYED)){
+                String timeGapText = "";
+                long timeGapMs = System.currentTimeMillis() - rowDeck.getLastPlayed();
+                //Only display the largest time unit
+                long days = TimeUnit.MILLISECONDS.toDays(timeGapMs);
+                long hours = TimeUnit.MILLISECONDS.toHours(timeGapMs);
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(timeGapMs);
+                if(days > 0){
+                    timeGapText = timeGapText + days + " d";
+                } else if(hours > 0){
+                    timeGapText = timeGapText + hours + " h";
+                } else {
+                    //Don't care if it's 0 minutes, not going higher resolution than this
+                    timeGapText = timeGapText + minutes + " m";
+                }
+                lastPlayedView.setText(timeGapText);
+
+            }
 
             try {
                 GradientDrawable lastPlayedBg = (GradientDrawable) getResources().getDrawable(R.drawable.time_indicator_bubble);
-                lastPlayedBg.setColor(mDecks.get(position).getDarkColor());
+                lastPlayedBg.setColor(rowDeck.getDarkColor());
                 Log.d(TAG, "Setting background: " + lastPlayedBg.toString());
                 lastPlayedView.setBackground(lastPlayedBg);
             } catch (ClassCastException ex) {
@@ -435,21 +454,20 @@ public class MainActivityFragment extends GenericListFragment {
                 selectionLayout.setVisibility(View.VISIBLE);
             }
             CheckBox selectionCheck = (CheckBox) listItem.findViewById(R.id.selection_check);
-            if(mSelectedDecks.contains(mDecks.get(position))){
+            if(mSelectedDecks.contains(rowDeck)){
                 selectionCheck.setChecked(true);
             }
             //NOTE: this isn't thread safe, so may need a lock on mSelectedDecks;
             selectionCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    Deck d = mDecks.get(position);
                     if(isChecked){
-                        if(!mSelectedDecks.contains(d)){
-                            mSelectedDecks.add(d);
+                        if(!mSelectedDecks.contains(rowDeck)){
+                            mSelectedDecks.add(rowDeck);
                         }
                     } else {
-                        if(mSelectedDecks.contains(d)){
-                            mSelectedDecks.remove(d);
+                        if(mSelectedDecks.contains(rowDeck)){
+                            mSelectedDecks.remove(rowDeck);
                         }
                     }
                     if(mMenu == null){
@@ -483,9 +501,9 @@ public class MainActivityFragment extends GenericListFragment {
                 }
             });
 
-            deckNameView.setText(mDecks.get(position).getName());
-            deckSizeView.setText(getResources().getQuantityString(R.plurals.card_count, mDecks.get(position).getSize(), mDecks.get(position).getSize()));
-            listItem.setBackgroundColor(mDecks.get(position).getColor());
+            deckNameView.setText(rowDeck.getName());
+            deckSizeView.setText(getResources().getQuantityString(R.plurals.card_count, rowDeck.getSize(), rowDeck.getSize()));
+            listItem.setBackgroundColor(rowDeck.getColor());
 
             return listItem;
 

@@ -161,6 +161,7 @@ public class PlayerFragment extends Fragment {
     public void playFinished(){
         //Update the deck so scores persist
         Storage storage = new Storage(getActivity());
+        mDeck.setLastPlayed(System.currentTimeMillis());
         storage.writeDeckToFile(mDeck);
         Log.d(TAG, "Play finished, nulling deck and card");
         setDeck(null);

@@ -9,12 +9,16 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 import static com.padgrayson91.flashcards.Constants.ERROR_NO_ID;
 import static com.padgrayson91.flashcards.Constants.KEY_CARDS;
 import static com.padgrayson91.flashcards.Constants.KEY_CARD_CONTENTS;
+import static com.padgrayson91.flashcards.Constants.KEY_CREATED_AT;
 import static com.padgrayson91.flashcards.Constants.KEY_ID;
+import static com.padgrayson91.flashcards.Constants.KEY_LAST_PLAYED;
 import static com.padgrayson91.flashcards.Constants.KEY_NAME;
+import static com.padgrayson91.flashcards.Constants.KEY_OWNER;
 import static com.padgrayson91.flashcards.Constants.SUCCESS;
 
 /**
@@ -22,11 +26,16 @@ import static com.padgrayson91.flashcards.Constants.SUCCESS;
  */
 public class Deck implements Comparable {
     private static final String TAG = "FlashCards";
+    public static final int NEVER_PLAYED = 0;
+    //Amount of weight attached to time since deck was last played.
+    private static final double TIME_DECAY_CONSTANT = 0.1;
 
     private JSONObject mJson;
     private ArrayList<Card> cards;
     private String name;
-    private long lastPlayed;
+    private long lastPlayed; //Time last played in ms
+    private long createdAt; //Time created in ms
+    private String owner;
     private Iterator<Card> mCardIterator;
 
     public static final int SORT_MODE_SCORE = 0;
@@ -42,6 +51,8 @@ public class Deck implements Comparable {
         mJson = new JSONObject();
         cards = new ArrayList<>();
         mCardIterator = cards.iterator();
+        createdAt = System.currentTimeMillis();
+        lastPlayed = NEVER_PLAYED;
         this.name = name;
         try {
             mJson.put(KEY_NAME, name);
@@ -69,6 +80,18 @@ public class Deck implements Comparable {
                     Card card = new Card(jobj.getJSONObject(KEY_CARD_CONTENTS), id);
                     cards.add(card);
                 }
+            }
+            if(mJson.has(KEY_CREATED_AT)){
+                createdAt = mJson.getLong(KEY_CREATED_AT);
+            }
+            if(mJson.has(KEY_LAST_PLAYED)){
+                lastPlayed = mJson.getLong(KEY_LAST_PLAYED);
+            } else {
+                //if we don't know when it was last played
+                lastPlayed = NEVER_PLAYED;
+            }
+            if(mJson.has(KEY_OWNER)){
+                owner = mJson.getString(KEY_OWNER);
             }
 
 
@@ -115,6 +138,12 @@ public class Deck implements Comparable {
 
         }
         totalScore = totalScore/(Math.max(1, cards.size()));
+        if(lastPlayed != NEVER_PLAYED) {
+            long timeGapMs = System.currentTimeMillis() - lastPlayed;
+            long timeGapHours = TimeUnit.MILLISECONDS.toHours(timeGapMs);
+            totalScore -= timeGapHours * TIME_DECAY_CONSTANT;
+        }
+
         return totalScore;
     }
 
@@ -235,6 +264,9 @@ public class Deck implements Comparable {
                 cards.put(outerCard);
             }
             mJson.put(KEY_NAME, name);
+            mJson.put(KEY_OWNER, owner);
+            mJson.put(KEY_LAST_PLAYED, lastPlayed);
+            mJson.put(KEY_CREATED_AT, createdAt);
             mJson.put(KEY_CARDS, cards);
         } catch (JSONException ex){
             //Should never get here
@@ -273,5 +305,25 @@ public class Deck implements Comparable {
         }
         else return 0;
 
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public long getLastPlayed() {
+        return lastPlayed;
+    }
+
+    public void setLastPlayed(long lastPlayed) {
+        this.lastPlayed = lastPlayed;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }
