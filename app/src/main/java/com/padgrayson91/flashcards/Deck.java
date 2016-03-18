@@ -27,8 +27,7 @@ import static com.padgrayson91.flashcards.Constants.SUCCESS;
 public class Deck implements Comparable {
     private static final String TAG = "FlashCards";
     public static final int NEVER_PLAYED = 0;
-    //Amount of weight attached to time since deck was last played.
-    private static final double TIME_DECAY_CONSTANT = 0.1;
+    private static final double TIME_DECAY_CONSTANT = 10; //Number of hours after which one point is lost
 
     private JSONObject mJson;
     private ArrayList<Card> cards;
@@ -46,7 +45,9 @@ public class Deck implements Comparable {
     private static final int MIN_R = 50;
     private static final int MIN_G = 50;
     private static final int MIN_B = 80;
-
+    private static final int BLUE_FACTOR = 7; //higher number = less blue
+    private static final int RED_FACTOR = 10; // higher number = less red
+    private static final int GREEN_FACTOR = 10; // higher number = less green
     public Deck(String name){
         mJson = new JSONObject();
         cards = new ArrayList<>();
@@ -141,7 +142,7 @@ public class Deck implements Comparable {
         if(lastPlayed != NEVER_PLAYED) {
             long timeGapMs = System.currentTimeMillis() - lastPlayed;
             long timeGapHours = TimeUnit.MILLISECONDS.toHours(timeGapMs);
-            totalScore -= timeGapHours * TIME_DECAY_CONSTANT;
+            totalScore -= timeGapHours/TIME_DECAY_CONSTANT;
         }
 
         return totalScore;
@@ -150,9 +151,9 @@ public class Deck implements Comparable {
     public int getColor(){
         int totalScore = getScore();
         if(totalScore > 0){
-            return Color.argb(ALPHA, Math.max(255 - 10*totalScore, MIN_R), 255, Math.max(255 - 7*totalScore, MIN_B));
+            return Color.argb(ALPHA, Math.max(255 - RED_FACTOR*totalScore, MIN_R), 255, Math.max(255 - BLUE_FACTOR*totalScore, MIN_B));
         } else {
-            return Color.argb(ALPHA, 255, Math.max(255 + 10*totalScore, MIN_G), Math.max(255 + 7*totalScore, MIN_B));
+            return Color.argb(ALPHA, 255, Math.max(255 + GREEN_FACTOR*totalScore, MIN_G), Math.max(255 + BLUE_FACTOR*totalScore, MIN_B));
         }
     }
 

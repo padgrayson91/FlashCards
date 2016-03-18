@@ -57,10 +57,15 @@ public class PlayerFragment extends Fragment {
             b.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    for(Button b: mAnswerButtons){
+                        //Disable all the buttons
+                        b.setEnabled(false);
+                    }
                     if(((Button) v).getText().equals(mCurrentCard.getAnswer())){
                         //Question Right, Yay!
                         ((Button) v).setTextColor(Color.GREEN);
                         mCurrentCard.incrementCorrectCount();
+                        mCurrentCard.setTimeLastCorrect(System.currentTimeMillis());
                         Toast.makeText(getActivity(), "Correct!", Toast.LENGTH_SHORT).show();
                     } else {
                         mCurrentCard.incrementIncorrectCount();
@@ -200,7 +205,8 @@ public class PlayerFragment extends Fragment {
     public void loadCard(@Nullable Card c){
         //When we load  a new card, we need to reset all the button colors
         for(Button b: mAnswerButtons){
-            b.setTextColor(Color.BLACK);
+            b.setTextColor(Color.DKGRAY);
+            b.setEnabled(true);
         }
         mCurrentCard = c;
         if(c == null){

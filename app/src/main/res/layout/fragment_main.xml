@@ -17,6 +17,6 @@
         android:id="@+id/view_decks_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@mipmap/ic_launcher"></ListView>
+        android:background="@color/colorPrimaryDark"></ListView>
 
 </RelativeLayout>

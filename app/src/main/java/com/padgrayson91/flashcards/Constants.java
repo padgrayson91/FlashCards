@@ -24,6 +24,7 @@ public class Constants {
     public static final String KEY_TIMES_INCORRECT = "card_times_incorrect";
     public static final String KEY_CARD_TYPE = "card_type";
     public static final String KEY_CARD_CONTENTS = "card";
+    public static final String KEY_LAST_CORRECT = "card_last_correct";
 
     //Deck JSON keys
     public static final String KEY_NAME = "deck_name";

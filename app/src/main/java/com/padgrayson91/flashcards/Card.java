@@ -7,9 +7,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import static com.padgrayson91.flashcards.Constants.KEY_ANSWER;
 import static com.padgrayson91.flashcards.Constants.KEY_ID;
+import static com.padgrayson91.flashcards.Constants.KEY_LAST_CORRECT;
 import static com.padgrayson91.flashcards.Constants.KEY_OPTIONS;
 import static com.padgrayson91.flashcards.Constants.KEY_QUESTION;
 import static com.padgrayson91.flashcards.Constants.KEY_TIMES_CORRECT;
@@ -20,9 +22,7 @@ import static com.padgrayson91.flashcards.Constants.KEY_TIMES_INCORRECT;
  * Created by patrickgrayson on 3/10/16.
  */
 public class Card implements Comparable{
-    //TODO: time stamps for cards, one for last correct, and one for last incorrect.  To be used for scoring
     private long timeLastCorrect;
-    private long timeLastIncorrect;
     private JSONObject mJson;
     private String question;
     private String answer;
@@ -34,6 +34,14 @@ public class Card implements Comparable{
     private static final int MIN_R = 50;
     private static final int MIN_G = 50;
     private static final int MIN_B = 80;
+    private static final int BLUE_FACTOR = 7; //higher number = less blue
+    private static final int RED_FACTOR = 10; // higher number = less red
+    private static final int GREEN_FACTOR = 10; // higher number = less green
+    private static final int MAX_SCORE = 20;
+    private static final int MIN_SCORE = -10;
+    private static final long NEVER_PLAYED = 0;
+    private static final int TIME_WEIGHT_CONSTANT = 5; //number of hours after which a point is lost
+
 
     public static final int SORT_MODE_SCORE = 0;
     public static final int SORT_MODE_ALPHA = 1;
@@ -82,6 +90,9 @@ public class Card implements Comparable{
                     options.add(temp.getString(i));
                 }
             }
+            if(mJson.has(KEY_LAST_CORRECT)){
+                timeLastCorrect = mJson.getLong(KEY_LAST_CORRECT);
+            }
         } catch (JSONException ex) {
             //Should never get here
         }
@@ -101,6 +112,7 @@ public class Card implements Comparable{
             mJson.put(KEY_TIMES_INCORRECT, incorrectCount);
             JSONArray options = new JSONArray(this.options);
             mJson.put(KEY_OPTIONS, options);
+            mJson.put(KEY_LAST_CORRECT, timeLastCorrect);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -159,26 +171,30 @@ public class Card implements Comparable{
         this.question = question;
     }
 
-    //TODO: make a more interesting scoring algorithm
-
     /***
      * Method to get the score associated with a card.  Cards with more correct responses will have
-     * a higher score
+     * a higher score.  Cards lose points if they haven't been correctly answered in a while.
      * @return
      */
     public int getScore(){
-        //Potential new formula: correctCount/Min(convertToHours(system time - last correct time), 1)
-        //                       - incorrectCount/Min(convertToHours(system time - last incorrect time), 1)
-        return correctCount - incorrectCount;
+        int score = correctCount - incorrectCount;
+        if(timeLastCorrect != NEVER_PLAYED) {
+            long timeGap = System.currentTimeMillis() - timeLastCorrect;
+            long timeGapHours = TimeUnit.MILLISECONDS.toHours(timeGap);
+            score -= timeGapHours / TIME_WEIGHT_CONSTANT;
+        }
+        score = Math.max(score, MIN_SCORE);
+        score = Math.min(score, MAX_SCORE);
+        return score;
     }
 
     public int getColor(){
         int score = getScore();
 
         if(score > 0){
-            return Color.argb(255, Math.max(255 - 10*score, MIN_R), 255, Math.max(255 - 7*score, MIN_B));
+            return Color.argb(255, Math.max(255 - RED_FACTOR*score, MIN_R), 255, Math.max(255 - BLUE_FACTOR*score, MIN_B));
         } else {
-            return Color.argb(255, 255, Math.max(255 + 10*score, MIN_G), Math.max(255 + 7*score, MIN_B));
+            return Color.argb(255, 255, Math.max(255 + GREEN_FACTOR*score, MIN_G), Math.max(255 + BLUE_FACTOR*score, MIN_B));
         }
     }
 
@@ -231,5 +247,13 @@ public class Card implements Comparable{
         else {
             return 0;
         }
+    }
+
+    public long getTimeLastCorrect() {
+        return timeLastCorrect;
+    }
+
+    public void setTimeLastCorrect(long timeLastCorrect) {
+        this.timeLastCorrect = timeLastCorrect;
     }
 }
