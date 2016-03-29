@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.padgrayson91.flashcards.Constants.KEY_ANSWER;
@@ -22,6 +23,7 @@ import static com.padgrayson91.flashcards.Constants.KEY_TIMES_INCORRECT;
  * Created by patrickgrayson on 3/10/16.
  */
 public class Card implements Comparable{
+
     private long timeLastCorrect;
     private JSONObject mJson;
     private String question;
@@ -41,6 +43,7 @@ public class Card implements Comparable{
     private static final int MIN_SCORE = -10;
     private static final long NEVER_PLAYED = 0;
     private static final int TIME_WEIGHT_CONSTANT = 5; //number of hours after which a point is lost
+    private static final int NEVER_PLAYED_DEDUCTION_CONSTANT = 1; //number of points deducted from the score of a brand new card
 
 
     public static final int SORT_MODE_SCORE = 0;
@@ -48,7 +51,20 @@ public class Card implements Comparable{
     private static int SORT_MODE;
 
     /***
-     * Constructor to be used when building a card for the first time
+     * Constructor to be used when creating a brand new card.  Used to generate a unique Id
+     *
+     */
+    public Card(){
+        this.id = UUID.randomUUID().toString();
+        this.mJson = new JSONObject();
+        this.incorrectCount = 0;
+        this.correctCount = 0;
+        this.options = new ArrayList<String>();
+    }
+
+    /***
+     * Constructor to be used when instantiating a new object for an existing card with all
+     * values reset
      * @param id
      */
     public Card(String id){
@@ -66,6 +82,7 @@ public class Card implements Comparable{
      * @param id should be the id already assigned to the card
      */
     public Card(JSONObject card, String id) {
+        //TODO: change this to new format from web app
         mJson = card;
         this.id = id;
         this.options = new ArrayList<String>();
@@ -104,6 +121,7 @@ public class Card implements Comparable{
 
 
     public JSONObject toJSON(){
+        //TODO: change this to new format from web app
         try {
             mJson.put(KEY_ID, id);
             mJson.put(KEY_QUESTION, question);
@@ -182,6 +200,9 @@ public class Card implements Comparable{
             long timeGap = System.currentTimeMillis() - timeLastCorrect;
             long timeGapHours = TimeUnit.MILLISECONDS.toHours(timeGap);
             score -= timeGapHours / TIME_WEIGHT_CONSTANT;
+        } else {
+            //deduct points for a card that was never played
+            score -= NEVER_PLAYED_DEDUCTION_CONSTANT;
         }
         score = Math.max(score, MIN_SCORE);
         score = Math.min(score, MAX_SCORE);

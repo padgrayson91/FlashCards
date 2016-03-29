@@ -150,7 +150,7 @@ public class CardBuilderFragment extends Fragment {
     public int validateAndSave(Deck d){
         int result = validate();
         if(result == SUCCESS){
-            Card c = new Card(question.hashCode() + "");
+            Card c = new Card();
             c.setQuestion(question);
             c.setAnswer(answer);
             c.setOptions(options);
